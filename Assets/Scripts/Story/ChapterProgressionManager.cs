@@ -71,6 +71,9 @@ public class ChapterProgressionManager : MonoBehaviour
             case "BlackSmithRebuilt":
                 StoryEventManager.Instance.Trigger("ShrineUpgrade");
                 break;
+            case "ShrineUpgrade":
+                StoryEventManager.Instance.Trigger("TalkOfTheTown");
+                break;
             default:
                 break;
         }

@@ -17,7 +17,20 @@ public class BuildingSelectionUI : MonoBehaviour
     void Awake()
     {
         buildingManager = FindFirstObjectByType<BuildingManager>();
+        buttonContainer.gameObject.SetActive(false);
         GenerateButtons();
+    }
+
+    private void Update()
+    {
+        if(buildingOptions.Count <= 0)
+        {
+            buttonContainer.gameObject.SetActive(false);
+        }
+        else
+        {
+            buttonContainer.gameObject.SetActive(true);
+        }
     }
 
     public void AddBlueprint(BuildingBlueprint newBlueprint)

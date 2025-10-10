@@ -101,6 +101,7 @@ public class CameraPanZoom : MonoBehaviour
 
     public void StartFollowingPlayer()
     {
+        player = FindFirstObjectByType<PlayerController>().transform;
         followPlayer = true;
     }
 

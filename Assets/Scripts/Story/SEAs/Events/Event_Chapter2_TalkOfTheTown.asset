@@ -10,13 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 00136c49886b01b48b668af1d85d1614, type: 3}
-  m_Name: Event_Chapter1_BlackSmithRebuilt
+  m_Name: Event_Chapter2_TalkOfTheTown
   m_EditorClassIdentifier: Assembly-CSharp::StoryEventSO
-  eventID: BlackSmithRebuilt
+  eventID: TalkOfTheTown
   completed: 1
   actions:
-  - {fileID: 11400000, guid: 3c119c15399b7e04db50ab40915dffbb, type: 2}
-  - {fileID: 11400000, guid: 6c5b06bc4860ecd45b37aae1d380752c, type: 2}
-  - {fileID: 11400000, guid: ecf2c9e1f1b35c146a478cd8d5171b05, type: 2}
-  - {fileID: 11400000, guid: 796312240f7a4a247ac12a92629f9fce, type: 2}
-  prerequisiteEventID: 
+  - {fileID: 11400000, guid: 4c5bb846358498346b93895d2b9fe114, type: 2}
+  - {fileID: 11400000, guid: 3f1ad3c27c680c34fad93dd0ca79696e, type: 2}
+  prerequisiteEventID: ShrineUpgrade

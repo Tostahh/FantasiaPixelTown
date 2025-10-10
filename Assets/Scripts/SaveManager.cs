@@ -17,6 +17,10 @@ public class SaveManager : MonoBehaviour
     public TutorialManager tutorialManager;
     public ResourceManager resourceManager;
 
+    public RubbleDatabase RDB;
+    public BuildingDatabase BDB;
+    public TileDatabase TDB;
+
     public GameSaveData CurrentSave { get; private set; }
 
     private void Awake()

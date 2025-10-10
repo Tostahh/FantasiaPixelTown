@@ -51326,10 +51326,11 @@ MonoBehaviour:
   obstacleTilemap: {fileID: 1030929731}
   GrassTile: {fileID: 11400000, guid: b378b9fe3cf88184d84c395a8c82387c, type: 2}
   grid: {fileID: 330151294}
-  rubblePrefabs: []
   validColor: {r: 0, g: 1, b: 0, a: 0.5}
   invalidColor: {r: 1, g: 0, b: 0, a: 0.5}
   currentBlueprint: {fileID: 0}
+  placedBuildings: []
+  placedRubble: []
 --- !u!4 &1452508094
 Transform:
   m_ObjectHideFlags: 0
@@ -51408,6 +51409,9 @@ MonoBehaviour:
   storyManager: {fileID: 1308728412}
   tutorialManager: {fileID: 1308728416}
   resourceManager: {fileID: 248915273}
+  RDB: {fileID: 11400000, guid: 03dbe03102ef952449c630141ef57faf, type: 2}
+  BDB: {fileID: 11400000, guid: b6f8407eaccb95c4bb9f6f0228d4ebea, type: 2}
+  TDB: {fileID: 11400000, guid: 77c71eb52ae1dc542964dc444598d575, type: 2}
 --- !u!1 &1496025913
 GameObject:
   m_ObjectHideFlags: 0

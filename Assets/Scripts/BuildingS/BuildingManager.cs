@@ -15,7 +15,7 @@ public class BuildingManager : MonoBehaviour
     public Grid grid;
 
     [Header("Prefabs")]
-    public List<CollectibleRubble> rubblePrefabs; // assign all rubble types in Inspector
+    //public List<CollectibleRubble> rubblePrefabs; // assign all rubble types in Inspector
 
     [Header("Preview Settings")]
     public Color validColor = new Color(0f, 1f, 0f, 0.5f);
@@ -396,9 +396,20 @@ public class BuildingManager : MonoBehaviour
 
     public void ClearAllRubble()
     {
-        foreach (var r in placedRubble)
-            if (r != null) Destroy(r.gameObject);
-        placedRubble.Clear();
+        // Only destroy rubble that still exists in the world (not already collected)
+        for (int i = placedRubble.Count - 1; i >= 0; i--)
+        {
+            var r = placedRubble[i];
+            if (r == null || !r.gameObject.activeSelf)
+            {
+                // Already collected or null, just remove from list
+                placedRubble.RemoveAt(i);
+                continue;
+            }
+
+            Destroy(r.gameObject);
+            placedRubble.RemoveAt(i);
+        }
     }
     #endregion
 

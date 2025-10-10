@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using TMPro;
 
 public class BuildingSelectionUI : MonoBehaviour
 {
@@ -44,12 +45,17 @@ public class BuildingSelectionUI : MonoBehaviour
             GameObject btnObj = Instantiate(buttonPrefab, buttonContainer);
             Button btn = btnObj.GetComponent<Button>();
             Image icon = btnObj.GetComponent<Image>();
+            TextMeshProUGUI cost = btnObj.GetComponentInChildren<TextMeshProUGUI>();
 
             // Use the prefab sprite as the button icon (assumes prefab has a SpriteRenderer)
             if (icon != null)
             {
                 SpriteRenderer sr = blueprint.tierPrefabs[0].GetComponentInChildren<SpriteRenderer>();
                 if (sr != null) icon.sprite = sr.sprite;
+            }
+            if(cost != null)
+            {
+                cost.text = blueprint.tierCosts[0].goldCost.ToString() + " : " + blueprint.tierCosts[0].materialCost.ToString() + " : " + blueprint.tierCosts[0].manaCost.ToString();
             }
 
             btn.onClick.AddListener(() => SelectBuilding(blueprint));

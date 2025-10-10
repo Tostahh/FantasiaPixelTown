@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f445001872a0b1a45aa598412e3bdcc7, type: 3}
+  m_Name: BlackSmithThanks
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
+  dialogueID: BlackSmithThanks
+  lines:
+  - ImageSprite: {fileID: 21300000, guid: 0365174485713ee4a9d35df90587e39e, type: 3}
+    speakerName: Bagren
+    text: "\u2026Oh\u2026 someone\u2019s here."
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: "You\u2019ve been here this whole time?"
+  - ImageSprite: {fileID: 21300000, guid: 0365174485713ee4a9d35df90587e39e, type: 3}
+    speakerName: Bargen
+    text: "Y-yes\u2026 I keep to myself."
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: "You\u2019re the town\u2019s blacksmith, right?"
+  - ImageSprite: {fileID: 21300000, guid: 0365174485713ee4a9d35df90587e39e, type: 3}
+    speakerName: Bargen
+    text: "I\u2026 I am. Please, don\u2019t look under my... bag."
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: "So you\u2019ll help rebuild?"
+  - ImageSprite: {fileID: 21300000, guid: 0365174485713ee4a9d35df90587e39e, type: 3}
+    speakerName: Bargen
+    text: "Y-yes\u2026 I\u2019ll do my best\u2026 heh."

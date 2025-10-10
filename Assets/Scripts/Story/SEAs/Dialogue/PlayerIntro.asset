@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f445001872a0b1a45aa598412e3bdcc7, type: 3}
+  m_Name: PlayerIntro
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
+  dialogueID: PlayerIntro
+  lines:
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: ???
+    text: Finally... A Village! I've been lost for weeks
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: "\u2026Traveler\u2026 can you hear me?"
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: "These lands once thrived \u2014 laughter, warmth, purpose\u2026"
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: Now, silence. But not all is lost.
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: If your heart still carries hope, rebuild what was forgotten.
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: "Begin with shelter. The Inn \u2014 it was the soul of this place."
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: ???
+    text: "What\u2026 was that?"
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: I... Think it said something about a shelter. The Inn... Yeah! An Inn thats
+      amazing!
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: Oh... this place has seen better days...
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: Maybe I can use the Materials around to fix this place up a bit!
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: Time to get to work.

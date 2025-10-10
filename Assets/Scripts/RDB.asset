@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 723e13ffdea15f1488fb428a37c44b49, type: 3}
+  m_Name: RDB
+  m_EditorClassIdentifier: Assembly-CSharp::RubbleDatabase
+  rubblePrefabs:
+  - {fileID: 1608290223526214533, guid: 445d4581c4426d94f992680fa9e0704f, type: 3}
+  - {fileID: 3403544412580595915, guid: 625518f24c3595d419f23e7b2905bf5f, type: 3}
+  - {fileID: 5105026089765695092, guid: f3b80a5cea8ab0046abacca33b70d57b, type: 3}

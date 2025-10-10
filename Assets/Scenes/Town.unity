@@ -169,7 +169,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5105026089765695092, guid: f3b80a5cea8ab0046abacca33b70d57b, type: 3}
       propertyPath: m_Name
-      value: CollectableRubbleM50 (2)
+      value: CollectableRubbleM50
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2282,7 +2282,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5105026089765695092, guid: f3b80a5cea8ab0046abacca33b70d57b, type: 3}
       propertyPath: m_Name
-      value: CollectableRubbleM50 (1)
+      value: CollectableRubbleM50
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2633,7 +2633,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1608290223526214533, guid: 445d4581c4426d94f992680fa9e0704f, type: 3}
       propertyPath: m_Name
-      value: CollectableRubbleG50 (2)
+      value: CollectableRubbleG50
       objectReference: {fileID: 0}
     - target: {fileID: 7414503424046658052, guid: 445d4581c4426d94f992680fa9e0704f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -52258,7 +52258,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1608290223526214533, guid: 445d4581c4426d94f992680fa9e0704f, type: 3}
       propertyPath: m_Name
-      value: CollectableRubbleG50 (1)
+      value: CollectableRubbleG50
       objectReference: {fileID: 0}
     - target: {fileID: 7414503424046658052, guid: 445d4581c4426d94f992680fa9e0704f, type: 3}
       propertyPath: m_LocalPosition.x

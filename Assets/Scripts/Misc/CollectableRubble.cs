@@ -37,6 +37,8 @@ public class CollectibleRubble : MonoBehaviour
         if (collectEffect != null)
             Instantiate(collectEffect, transform.position, Quaternion.identity, null);
 
+        FindFirstObjectByType<BuildingManager>().RemoveRubble(this);
+
         if (destroyOnCollect)
             Destroy(gameObject);
     }

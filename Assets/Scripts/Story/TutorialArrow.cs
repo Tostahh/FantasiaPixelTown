@@ -39,16 +39,19 @@ public class TutorialArrow : MonoBehaviour
 
     private void OnEnable()
     {
-        // Start pulsing if not completed
-        if (!completed && !isPulsing)
-            StartCoroutine(PulseRoutine());
+        TutorialManager.Instance?.RegisterArrowOnEnable(this);
 
-        // Register with the TutorialManager if not already
-        if (TutorialManager.Instance != null)
-            TutorialManager.Instance.RegisterArrowOnEnable(this);
+        // Only pulse and show if we're not loading
+        if (!TutorialManager.Instance.IsLoading)
+        {
+            if (!completed && !isPulsing)
+                StartCoroutine(PulseRoutine());
+        }
 
         SetVisible(stepIndex == TutorialManager.Instance.currentStep);
     }
+
+
 
     private void OnDisable()
     {

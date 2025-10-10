@@ -63,4 +63,44 @@ public class BuildingSelectionUI : MonoBehaviour
             buildingManager.BeginPlacement(blueprint);
         }
     }
+
+    public List<string> GetUnlockedBlueprintNames()
+    {
+        List<string> names = new List<string>();
+        foreach (var blueprint in buildingOptions)
+        {
+            if (blueprint != null)
+                names.Add(blueprint.name);
+        }
+
+        Debug.Log($"[BuildingSelectionUI] Saving {names.Count} unlocked blueprints.");
+        return names;
+    }
+
+    public void LoadUnlockedBlueprints(List<string> blueprintNames)
+    {
+        buildingOptions.Clear();
+
+        foreach (var name in blueprintNames)
+        {
+            BuildingBlueprint bp = BuildingDatabase.Instance.GetBlueprintByName(name);
+            if (bp != null)
+            {
+                buildingOptions.Add(bp);
+            }
+            else
+            {
+                Debug.LogWarning($"[BuildingSelectionUI] Could not find blueprint '{name}' in database.");
+            }
+        }
+
+        // Rebuild UI
+        foreach (Transform child in buttonContainer)
+            Destroy(child.gameObject);
+        GenerateButtons();
+
+        Debug.Log($"[BuildingSelectionUI] Loaded {buildingOptions.Count} blueprints.");
+    }
+
+
 }

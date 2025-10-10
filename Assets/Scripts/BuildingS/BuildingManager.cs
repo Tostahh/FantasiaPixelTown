@@ -36,6 +36,7 @@ public class BuildingManager : MonoBehaviour
 
     public List<Building> placedBuildings = new();
     public List<CollectibleRubble> placedRubble = new();
+    private List<RubbleSaveData> _collectedRubbleData = new();
 
     private void Awake()
     {
@@ -264,6 +265,8 @@ public class BuildingManager : MonoBehaviour
     #endregion
 
     #region Save/Load
+
+
     public List<BuildingSaveData> GetBuildingSaveData()
     {
         var data = new List<BuildingSaveData>();
@@ -306,6 +309,8 @@ public class BuildingManager : MonoBehaviour
     public List<RubbleSaveData> GetRubbleSaveData()
     {
         var data = new List<RubbleSaveData>();
+
+        // Save uncollected rubble
         foreach (var rubble in placedRubble)
         {
             if (rubble == null) continue;
@@ -317,9 +322,14 @@ public class BuildingManager : MonoBehaviour
                 goldReward = rubble.goldReward,
                 materialReward = rubble.materialReward,
                 manaReward = rubble.manaReward,
-                collected = !rubble.gameObject.activeSelf
+                collected = false
             });
         }
+
+        // Include already collected rubble
+        if (_collectedRubbleData != null && _collectedRubbleData.Count > 0)
+            data.AddRange(_collectedRubbleData);
+
         return data;
     }
 
@@ -361,11 +371,20 @@ public class BuildingManager : MonoBehaviour
 
     public void SpawnRubbleFromSave(List<RubbleSaveData> data)
     {
-        ClearAllRubble(); // clear first to prevent duplicates
+        ClearAllRubble(); // clear active rubble, but don't clear _collectedRubbleData
+
+        if (_collectedRubbleData == null)
+            _collectedRubbleData = new List<RubbleSaveData>();
 
         foreach (var d in data)
         {
-            if (d.collected) continue;
+            if (d.collected)
+            {
+                // Add to collected list if not already there
+                if (!_collectedRubbleData.Exists(x => x.position == d.position))
+                    _collectedRubbleData.Add(d);
+                continue; // do not respawn
+            }
 
             GameObject prefab = RubbleDatabase.Instance.GetRubblePrefab(d.prefabName);
             if (prefab == null)
@@ -376,7 +395,6 @@ public class BuildingManager : MonoBehaviour
 
             GameObject obj = Instantiate(prefab, d.position, Quaternion.identity);
             var rubble = obj.GetComponent<CollectibleRubble>();
-
             rubble.goldReward = d.goldReward;
             rubble.materialReward = d.materialReward;
             rubble.manaReward = d.manaReward;
@@ -384,8 +402,10 @@ public class BuildingManager : MonoBehaviour
             placedRubble.Add(rubble);
         }
 
-        Debug.Log($"[BuildingManager] Loaded {placedRubble.Count} rubble objects from save.");
+        Debug.Log($"[BuildingManager] Loaded {placedRubble.Count} active rubble objects. Collected count: {_collectedRubbleData.Count}");
     }
+
+
 
     public void ClearAllBuildings()
     {
@@ -393,16 +413,31 @@ public class BuildingManager : MonoBehaviour
             if (b != null) Destroy(b.gameObject);
         placedBuildings.Clear();
     }
+    public void RemoveRubble(CollectibleRubble rubble)
+    {
+        if (placedRubble.Contains(rubble))
+            placedRubble.Remove(rubble);
 
+        if (_collectedRubbleData == null)
+            _collectedRubbleData = new List<RubbleSaveData>();
+
+        _collectedRubbleData.Add(new RubbleSaveData
+        {
+            prefabName = rubble.gameObject.name.Replace("(Clone)", "").Trim(),
+            position = rubble.transform.position,
+            goldReward = rubble.goldReward,
+            materialReward = rubble.materialReward,
+            manaReward = rubble.manaReward,
+            collected = true
+        });
+    }
     public void ClearAllRubble()
     {
-        // Only destroy rubble that still exists in the world (not already collected)
         for (int i = placedRubble.Count - 1; i >= 0; i--)
         {
             var r = placedRubble[i];
-            if (r == null || !r.gameObject.activeSelf)
+            if (r == null)
             {
-                // Already collected or null, just remove from list
                 placedRubble.RemoveAt(i);
                 continue;
             }

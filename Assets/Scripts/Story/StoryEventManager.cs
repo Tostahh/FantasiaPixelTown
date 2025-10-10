@@ -76,30 +76,20 @@ public class StoryEventManager : MonoBehaviour
         switch (action.actionType)
         {
             case StoryActionType.Delay:
-                Debug.Log($"[StoryEventManager] Event '{action.name}' complete!");
                 yield return new WaitForSeconds(action.delayTime);
                 break;
-
             case StoryActionType.SpawnNPC:
-                Debug.Log($"[StoryEventManager] Event '{action.name}' complete!");
                 NPCManager.Instance.Spawn(action.spawnID);
                 break;
-
             case StoryActionType.PlayDialogue:
-                Debug.Log($"[StoryEventManager] Event '{action.name}' complete!");
                 yield return DialogueSystem.Instance.StartDialogueCoroutine(action.dialogueID);
                 break;
-
             case StoryActionType.FadeScreen:
-                Debug.Log($"[StoryEventManager] Event '{action.name}' complete!");
                 yield return ScreenFader.Instance.Fade(action.fadeIn, action.fadeDuration);
                 break;
-
             case StoryActionType.TriggerEffect:
-                Debug.Log($"[StoryEventManager] Event '{action.name}' complete!");
                 FindFirstObjectByType<ShrineController>()?.PlayGlowEffect();
                 break;
-
             case StoryActionType.Custom:
                 if (action.customActionAsset != null)
                     action.customActionAsset.Execute();
@@ -113,27 +103,17 @@ public class StoryEventManager : MonoBehaviour
     //  SAVE / LOAD HELPERS
     // ------------------------------
 
-    /// <summary>
-    /// Returns a list of all completed StoryEventSO IDs.
-    /// Used by SaveManager to store progression.
-    /// </summary>
     public List<string> GetCompletedEventIDs()
     {
         List<string> completedIDs = new List<string>();
-
         foreach (var e in events)
         {
             if (e != null && e.completed)
                 completedIDs.Add(e.eventID);
         }
-
         return completedIDs;
     }
 
-    /// <summary>
-    /// Marks the specified event IDs as completed.
-    /// Used by SaveManager when loading a save file.
-    /// </summary>
     public void SetCompletedEvents(List<string> ids)
     {
         if (ids == null || ids.Count == 0) return;
@@ -145,6 +125,28 @@ public class StoryEventManager : MonoBehaviour
         }
 
         Debug.Log($"[StoryEventManager] Restored {ids.Count} completed events from save.");
+    }
+
+    /// <summary>
+    /// Restores triggers for all events whose prerequisites are completed
+    /// but themselves are not yet completed.
+    /// </summary>
+    public void RestorePendingTriggers()
+    {
+        foreach (var e in events)
+        {
+            if (e.completed) continue;
+
+            if (!string.IsNullOrEmpty(e.prerequisiteEventID) && eventLookup.ContainsKey(e.prerequisiteEventID))
+            {
+                var prereqEvent = eventLookup[e.prerequisiteEventID];
+                if (prereqEvent.completed)
+                {
+                    Debug.Log($"[StoryEventManager] Restoring trigger for pending event '{e.eventID}'...");
+                    Trigger(e.eventID);
+                }
+            }
+        }
     }
 }
 

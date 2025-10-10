@@ -10,16 +10,23 @@ public class TutorialManager : MonoBehaviour
 
     private readonly Dictionary<int, TutorialStep> steps = new Dictionary<int, TutorialStep>();
 
+    private bool initialized;
+
+    public bool IsLoading { get; private set; } = false;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
-
     private void Start()
     {
+        if (initialized) return;
+
         RegisterArrows();
         UpdateArrows();
+
+        initialized = true;
     }
 
     /// <summary>
@@ -34,9 +41,18 @@ public class TutorialManager : MonoBehaviour
             if (!steps.ContainsKey(arrow.stepIndex))
                 steps.Add(arrow.stepIndex, new TutorialStep());
 
-            steps[arrow.stepIndex].AddArrow(arrow);
+            var step = steps[arrow.stepIndex];
+
+            if (!step.arrows.Contains(arrow))
+                step.AddArrow(arrow);
         }
+
+        // Reset progress counts since arrows are rebuilt
+        foreach (var step in steps.Values)
+            step.completedCount = 0;
     }
+
+
 
     public void AdvanceStep()
     {
@@ -55,30 +71,19 @@ public class TutorialManager : MonoBehaviour
     {
         foreach (var kvp in steps)
         {
+            int stepNum = kvp.Key;
             TutorialStep step = kvp.Value;
 
-            // Remove missing arrows and mark them as completed
-            for (int i = step.arrows.Count - 1; i >= 0; i--)
-            {
-                if (step.arrows[i] == null)
-                {
-                    step.completedCount++;
-                    step.arrows.RemoveAt(i);
-                }
-            }
+            // Remove any null arrows
+            step.arrows.RemoveAll(a => a == null);
 
-            // Activate arrows only for the current step
-            bool active = kvp.Key == currentStep;
+            // Only arrows for the current step are visible
+            bool active = stepNum == currentStep;
             step.SetActive(active);
-
-            // Automatically advance if all arrows are gone
-            if (step.completedCount >= step.arrows.Count && kvp.Key == currentStep)
-            {
-                Debug.Log($"[TutorialManager] Step {kvp.Key} completed automatically!");
-                AdvanceStep();
-            }
         }
     }
+
+
 
     public void RegisterArrowOnEnable(TutorialArrow arrow)
     {
@@ -97,6 +102,9 @@ public class TutorialManager : MonoBehaviour
     /// </summary>
     public void NotifyArrowComplete(int stepIndex)
     {
+        // Ignore arrows from past steps
+        if (stepIndex < currentStep) return;
+
         if (!steps.ContainsKey(stepIndex)) return;
 
         TutorialStep step = steps[stepIndex];
@@ -105,11 +113,24 @@ public class TutorialManager : MonoBehaviour
 
         Debug.Log($"[TutorialManager] Step {stepIndex} progress: {step.completedCount}/{step.arrows.Count}");
 
-        if (step.completedCount >= step.arrows.Count)
+        // Only advance if this is the current step
+        if (stepIndex == currentStep && step.completedCount >= step.arrows.Count)
         {
             Debug.Log($"[TutorialManager] Step {stepIndex} completed!");
             AdvanceStep();
         }
+    }
+
+
+    public void BeginLoad()
+    {
+        IsLoading = true;
+    }
+
+    public void EndLoad()
+    {
+        IsLoading = false;
+        UpdateArrows(); // refresh arrow states after loading
     }
 }
 

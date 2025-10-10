@@ -22,12 +22,16 @@ public class ChapterProgressionManager : MonoBehaviour
 
     private void Start()
     {
-        if (StoryEventManager.Instance.ChapterNumber == 1)
+        // Only play Chapter 1 start if the "PlayerEnters" event hasn't already completed
+        var playerEntersEvent = StoryEventManager.Instance.events.Find(e => e.eventID == "PlayerEnters");
+
+        if (StoryEventManager.Instance.ChapterNumber == 1 && playerEntersEvent != null && !playerEntersEvent.completed)
         {
             Chapter1Start();
             StoryEventManager.Instance.Trigger("PlayerEnters");
         }
     }
+
 
     private void OnEnable()
     {

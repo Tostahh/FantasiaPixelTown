@@ -58,6 +58,7 @@ public class SaveManager : MonoBehaviour
         var world = CurrentSave.worldData;
         world.timeOfDay = dayNightCycle.CurrentHour;
         world.buildings = buildingManager.GetBuildingSaveData();
+        world.rubbles = buildingManager.GetRubbleSaveData();
         world.tilemap = buildingManager.GetTileSaveData();
 
         // --- NPCs ---
@@ -69,6 +70,7 @@ public class SaveManager : MonoBehaviour
         progress.currentChapter = storyManager.ChapterNumber;
         progress.completedEventIDs = storyManager.GetCompletedEventIDs();
         progress.currentTutorialStep = tutorialManager.currentStep;
+        progress.unlockedBlueprints = FindFirstObjectByType<BuildingSelectionUI>().GetUnlockedBlueprintNames();
 
         // --- ECONOMY ---
         var economy = CurrentSave.economyData;
@@ -85,8 +87,13 @@ public class SaveManager : MonoBehaviour
     {
         CurrentSave = SaveSystem.LoadGame();
 
-        // --- WORLD ---
-        if (dayNightCycle != null)
+        if (tutorialManager != null)
+        {
+            tutorialManager.BeginLoad();
+        }
+
+            // --- WORLD ---
+            if (dayNightCycle != null)
         {
             dayNightCycle.SetTime(CurrentSave.worldData.timeOfDay);
         }
@@ -110,6 +117,7 @@ public class SaveManager : MonoBehaviour
 
             // Always load tile data
             buildingManager.LoadTileData(CurrentSave.worldData.tilemap);
+
         }
 
         // --- NPCs ---
@@ -124,12 +132,16 @@ public class SaveManager : MonoBehaviour
         {
             storyManager.ChapterNumber = CurrentSave.progressData.currentChapter;
             storyManager.SetCompletedEvents(CurrentSave.progressData.completedEventIDs);
+            storyManager.RestorePendingTriggers();
         }
 
         if (tutorialManager != null)
         {
-            tutorialManager.currentStep = CurrentSave.progressData.currentTutorialStep;
+            tutorialManager.SetStep(CurrentSave.progressData.currentTutorialStep);
+            tutorialManager.EndLoad();   // now safe to update arrow visuals
         }
+
+        FindFirstObjectByType<BuildingSelectionUI>().LoadUnlockedBlueprints(CurrentSave.progressData.unlockedBlueprints);
 
         // --- ECONOMY ---
         if (resourceManager != null)

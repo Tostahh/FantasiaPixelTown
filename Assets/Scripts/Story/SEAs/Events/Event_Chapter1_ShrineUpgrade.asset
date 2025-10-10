@@ -23,3 +23,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3c119c15399b7e04db50ab40915dffbb, type: 2}
   - {fileID: 11400000, guid: 4844549fba0b275459887e6a3ee4aee7, type: 2}
   - {fileID: 11400000, guid: 7a58b2dc7a65afa4e958d92bce3da40a, type: 2}
+  prerequisiteEventID: BlackSmithRebuilt

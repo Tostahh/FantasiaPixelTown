@@ -39,12 +39,15 @@ public class BuildingProduction : MonoBehaviour
         switch (resourceType)
         {
             case ResourceType.Gold:
+                if(amount > 0)
                 ResourceManager.Instance.AddGold(amount);
                 break;
             case ResourceType.Materials:
+                if(amount > 0)
                 ResourceManager.Instance.AddMaterials(amount);
                 break;
             case ResourceType.Mana:
+                if (amount > 0)
                 ResourceManager.Instance.AddMana(amount);
                 break;
         }

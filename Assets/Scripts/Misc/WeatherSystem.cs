@@ -43,9 +43,14 @@ public class WeatherSystem : MonoBehaviour
         if (!dayNightCycle)
             dayNightCycle = FindObjectOfType<DayNightCycle>();
 
-        ChooseRandomWeather();
-        ApplyWeatherSettings();
+        // If no save data injected, randomize
+        if (CurrentWeather == 0 && lastWeatherChangeDay == -1f)
+        {
+            ChooseRandomWeather();
+            ApplyWeatherSettings();
+        }
     }
+
 
     void Update()
     {
@@ -134,6 +139,19 @@ public class WeatherSystem : MonoBehaviour
         // Blend (slight color tint, scaled intensity)
         globalLight.color = Color.Lerp(baseColor, baseColor * tint, 0.5f);
         globalLight.intensity = baseIntensity * intensityMult;
+    }
+
+    public void SetWeather(WeatherType type, float lastChangeDay = -1f)
+    {
+        CurrentWeather = type;
+        lastWeatherChangeDay = lastChangeDay;
+        ApplyWeatherSettings();
+        OnWeatherChanged(CurrentWeather);
+    }
+
+    public (WeatherType weather, float lastChangeDay) GetWeatherData()
+    {
+        return (CurrentWeather, lastWeatherChangeDay);
     }
 }
 

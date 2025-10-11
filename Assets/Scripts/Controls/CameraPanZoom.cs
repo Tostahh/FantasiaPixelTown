@@ -20,7 +20,6 @@ public class CameraPanZoom : MonoBehaviour
     [Header("Player Follow")]
     public Transform player;
     public float followSmooth = 5f;
-    public float zoomOnFollow = 5f;
 
     private Camera cam;
     private InputSystem_Actions input;
@@ -112,9 +111,6 @@ public class CameraPanZoom : MonoBehaviour
             // Smooth follow
             targetPosition = Vector3.Lerp(transform.position, player.position, followSmooth * Time.deltaTime);
             targetPosition.z = transform.position.z;
-
-            // Optionally zoom in on player
-            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, zoomOnFollow, followSmooth * Time.deltaTime);
         }
 
         transform.position = Vector3.Lerp(transform.position, targetPosition, panSmooth * Time.deltaTime);

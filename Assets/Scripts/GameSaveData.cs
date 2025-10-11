@@ -21,6 +21,8 @@ public class GameSaveData
 public class WorldData
 {
     public float timeOfDay = 6;
+    public string currentWeather = "Clear";
+    public float lastWeatherChangeDay = 0f;
 
     public List<BuildingSaveData> buildings = new List<BuildingSaveData>();
     public List<TileSaveData> tilemap = new List<TileSaveData>();
@@ -110,49 +112,61 @@ public class SettingsData
 #region ===== SAVE SYSTEM =====
 public static class SaveSystem
 {
-    private static string savePath = Application.persistentDataPath + "/save.json";
+    private static string GetSlotPath(int slot)
+    {
+        return Path.Combine(Application.persistentDataPath, $"save_slot{slot}.json");
+    }
 
-    public static void SaveGame(GameSaveData data)
+    public static void SaveGame(GameSaveData data, int slot)
     {
         try
         {
+            string path = GetSlotPath(slot);
             string json = JsonUtility.ToJson(data, true);
-            File.WriteAllText(savePath, json);
-            Debug.Log($"Game saved to: {savePath}");
+            File.WriteAllText(path, json);
+            Debug.Log($"Game saved to: {path}");
         }
         catch (Exception e)
         {
-            Debug.LogError($"Failed to save game: {e}");
+            Debug.LogError($"Failed to save game (slot {slot}): {e}");
         }
     }
 
-    public static GameSaveData LoadGame()
+    public static GameSaveData LoadGame(int slot)
     {
         try
         {
-            if (!File.Exists(savePath))
+            string path = GetSlotPath(slot);
+            if (!File.Exists(path))
             {
-                Debug.Log("No save file found — creating new data...");
+                Debug.Log($"No save file found in slot {slot} — creating new data...");
                 return new GameSaveData();
             }
 
-            string json = File.ReadAllText(savePath);
+            string json = File.ReadAllText(path);
             return JsonUtility.FromJson<GameSaveData>(json);
         }
         catch (Exception e)
         {
-            Debug.LogError($"Failed to load game: {e}");
+            Debug.LogError($"Failed to load game (slot {slot}): {e}");
             return new GameSaveData();
         }
     }
 
-    public static void DeleteSave()
+    public static void DeleteSave(int slot)
     {
-        if (File.Exists(savePath))
+        string path = GetSlotPath(slot);
+        if (File.Exists(path))
         {
-            File.Delete(savePath);
-            Debug.Log("Save file deleted.");
+            File.Delete(path);
+            Debug.Log($"Save slot {slot} deleted.");
         }
     }
+
+    public static bool SaveExists(int slot)
+    {
+        return File.Exists(GetSlotPath(slot));
+    }
 }
+
 #endregion

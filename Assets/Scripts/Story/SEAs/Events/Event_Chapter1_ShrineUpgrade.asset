@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Event_Chapter1_ShrineUpgrade
   m_EditorClassIdentifier: Assembly-CSharp::StoryEventSO
   eventID: ShrineUpgrade
-  completed: 1
+  completed: 0
   actions:
   - {fileID: 11400000, guid: 880770766025cad4b9d11391015c98ff, type: 2}
   - {fileID: 11400000, guid: 6c5b06bc4860ecd45b37aae1d380752c, type: 2}

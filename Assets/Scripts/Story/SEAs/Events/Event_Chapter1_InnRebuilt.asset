@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Event_Chapter1_InnRebuilt
   m_EditorClassIdentifier: Assembly-CSharp::StoryEventSO
   eventID: InnRebuilt
-  completed: 1
+  completed: 0
   actions:
   - {fileID: 11400000, guid: 3c119c15399b7e04db50ab40915dffbb, type: 2}
   - {fileID: 11400000, guid: 6c5b06bc4860ecd45b37aae1d380752c, type: 2}

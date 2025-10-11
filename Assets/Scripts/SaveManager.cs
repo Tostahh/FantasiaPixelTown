@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 /// <summary>
 /// Central Save/Load manager for Fantasia Pixel Town.
@@ -7,12 +8,16 @@ using System.Collections.Generic;
 /// </summary>
 public class SaveManager : MonoBehaviour
 {
+    public static Action GameLoaded = delegate { };
+
     public static SaveManager Instance;
+    public int activeSlot = 1;
 
     [Header("Scene References")]
     public BuildingManager buildingManager;
     public NPCManager npcManager;
     public DayNightCycle dayNightCycle;
+    public WeatherSystem weatherSystem;
     public StoryEventManager storyManager;
     public TutorialManager tutorialManager;
     public ResourceManager resourceManager;
@@ -21,13 +26,14 @@ public class SaveManager : MonoBehaviour
     public BuildingDatabase BDB;
     public TileDatabase TDB;
 
-    public GameSaveData CurrentSave { get; private set; }
+    public GameSaveData CurrentSave { get; set; }
 
     private void Awake()
     {
         buildingManager = FindFirstObjectByType<BuildingManager>();
         npcManager = FindFirstObjectByType<NPCManager>();
         dayNightCycle = FindFirstObjectByType<DayNightCycle>();
+        weatherSystem = FindFirstObjectByType<WeatherSystem>();
         storyManager = FindFirstObjectByType<StoryEventManager>();
         tutorialManager = FindFirstObjectByType<TutorialManager>();
         resourceManager = FindFirstObjectByType<ResourceManager>();
@@ -42,7 +48,6 @@ public class SaveManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         buildingManager.InitializeStartingMap();
-        LoadGame();
     }
 
     #region ===== SAVE LOGIC =====
@@ -54,6 +59,9 @@ public class SaveManager : MonoBehaviour
         // --- WORLD ---
         var world = CurrentSave.worldData;
         world.timeOfDay = dayNightCycle.CurrentHour;
+        var (weatherType, lastChangeDay) = weatherSystem.GetWeatherData();
+        world.currentWeather = weatherType.ToString();
+        world.lastWeatherChangeDay = lastChangeDay;
         world.buildings = buildingManager.GetBuildingSaveData();
         world.rubbles = buildingManager.GetRubbleSaveData();
         world.tilemap = buildingManager.GetTileSaveData();
@@ -75,26 +83,39 @@ public class SaveManager : MonoBehaviour
         economy.materials = resourceManager.materials;
         economy.mana = resourceManager.mana;
 
-        SaveSystem.SaveGame(CurrentSave);
+        SaveSystem.SaveGame(CurrentSave, activeSlot);
     }
     #endregion
 
     #region ===== LOAD LOGIC =====
-    public void LoadGame()
+    public void LoadGame(int slot)
     {
-        CurrentSave = SaveSystem.LoadGame();
+        activeSlot = slot;
+        CurrentSave = SaveSystem.LoadGame(activeSlot);
 
         if (tutorialManager != null)
         {
             tutorialManager.BeginLoad();
         }
 
-            // --- WORLD ---
-            if (dayNightCycle != null)
+        // --- WORLD ---
+        if (dayNightCycle != null)
         {
             dayNightCycle.SetTime(CurrentSave.worldData.timeOfDay);
         }
 
+        if (weatherSystem != null)
+        {
+            if (Enum.TryParse(CurrentSave.worldData.currentWeather, out WeatherType savedWeather))
+            {
+                float lastChangeDay = CurrentSave.worldData.lastWeatherChangeDay;
+                weatherSystem.SetWeather(savedWeather, lastChangeDay);
+            }
+            else
+            {
+                weatherSystem.SetWeather(WeatherType.Clear);
+            }
+        }
 
         if (buildingManager != null)
         {
@@ -149,13 +170,16 @@ public class SaveManager : MonoBehaviour
         }
 
         Debug.Log("Game loaded successfully!");
+
+        GameLoaded();
     }
     #endregion
 
-    public void DeleteSave()
+    public void DeleteSave(int slot)
     {
-        SaveSystem.DeleteSave();
-        CurrentSave = new GameSaveData();
+        SaveSystem.DeleteSave(slot);
+        if (activeSlot == slot)
+            CurrentSave = new GameSaveData();
     }
 
     private void OnApplicationQuit()

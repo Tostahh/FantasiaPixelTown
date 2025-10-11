@@ -16,11 +16,9 @@ public class ChapterProgressionManager : MonoBehaviour
     private void Awake()
     {
         if (Instance == null) Instance = this;
-
-        StoryEventManager.OnChapterAdvance += CompleteChapter1;
     }
 
-    private void Start()
+    private void OnGameLoaded()
     {
         // Only play Chapter 1 start if the "PlayerEnters" event hasn't already completed
         var playerEntersEvent = StoryEventManager.Instance.events.Find(e => e.eventID == "PlayerEnters");
@@ -31,14 +29,15 @@ public class ChapterProgressionManager : MonoBehaviour
             StoryEventManager.Instance.Trigger("PlayerEnters");
         }
     }
-
-
     private void OnEnable()
     {
         // Subscribe using delegate
         Building.OnBuildingUpgraded += HandleBuildingUpgrade;
         BuildingManager.OnBuildingPlaced += HandleBuildingPlaced;
         StoryEventManager.Instance.OnEventCompleted += HandleStoryEventCompleted;
+        StoryEventManager.OnChapterAdvance += CompleteChapter1;
+
+        SaveManager.GameLoaded += OnGameLoaded;
     }
 
     private void OnDisable()
@@ -46,6 +45,9 @@ public class ChapterProgressionManager : MonoBehaviour
         Building.OnBuildingUpgraded -= HandleBuildingUpgrade;
         BuildingManager.OnBuildingPlaced += HandleBuildingPlaced;
         StoryEventManager.Instance.OnEventCompleted -= HandleStoryEventCompleted;
+        StoryEventManager.OnChapterAdvance -= CompleteChapter1;
+
+        SaveManager.GameLoaded -= OnGameLoaded;
     }
 
     private void HandleBuildingUpgrade(Building building)

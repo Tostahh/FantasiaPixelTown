@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Event_Chapter1_ArchitectArrival
   m_EditorClassIdentifier: Assembly-CSharp::StoryEventSO
   eventID: ArchitectArrival
-  completed: 1
+  completed: 0
   actions:
   - {fileID: 11400000, guid: 880770766025cad4b9d11391015c98ff, type: 2}
   - {fileID: 11400000, guid: 3c52091f2aeb6ed48b73c698b4804958, type: 2}

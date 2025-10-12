@@ -1,10 +1,16 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PauseMenuController : MonoBehaviour
 {
     [Header("Panels")]
     public GameObject pauseMenuPanel;
     public GameObject settingsPanel;
+
+    public Image pauseButton;
+
+    [SerializeField] private Sprite PausedSprite;
+    [SerializeField] private Sprite PlaySprite;
 
     [Header("References")]
     public SaveManager saveSystem; // assign in Inspector if needed
@@ -23,6 +29,15 @@ public class PauseMenuController : MonoBehaviour
         pauseMenuPanel.SetActive(isPaused);
         settingsPanel.SetActive(false); // ensure settings close when resuming
         Time.timeScale = isPaused ? 0f : 1f;
+
+        if(isPaused)
+        {
+            pauseButton.sprite = PausedSprite;
+        }
+        else
+        {
+            pauseButton.sprite = PlaySprite;
+        }
     }
 
     public void ManualSave()

@@ -43,7 +43,7 @@ public class ChapterProgressionManager : MonoBehaviour
     private void OnDisable()
     {
         Building.OnBuildingUpgraded -= HandleBuildingUpgrade;
-        BuildingManager.OnBuildingPlaced += HandleBuildingPlaced;
+        BuildingManager.OnBuildingPlaced -= HandleBuildingPlaced;
         StoryEventManager.Instance.OnEventCompleted -= HandleStoryEventCompleted;
         StoryEventManager.OnChapterAdvance -= CompleteChapter1;
 

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Collections;
 
 /// <summary>
 /// Central Save/Load manager for Fantasia Pixel Town.
@@ -11,7 +12,7 @@ public class SaveManager : MonoBehaviour
     public static Action GameLoaded = delegate { };
 
     public static SaveManager Instance;
-    public int activeSlot = 1;
+    public int activeSlot = 0;
 
     [Header("Scene References")]
     public BuildingManager buildingManager;
@@ -55,6 +56,12 @@ public class SaveManager : MonoBehaviour
     {
         if (CurrentSave == null)
             CurrentSave = new GameSaveData();
+
+        if (activeSlot < 1 || activeSlot > 3)
+        {
+            return;
+        }
+
 
         // --- WORLD ---
         var world = CurrentSave.worldData;
@@ -171,6 +178,12 @@ public class SaveManager : MonoBehaviour
 
         Debug.Log("Game loaded successfully!");
 
+        StartCoroutine(NotifyGameLoaded());
+    }
+
+    private IEnumerator NotifyGameLoaded()
+    {
+        yield return null; // wait a frame
         GameLoaded();
     }
     #endregion

@@ -6,6 +6,7 @@ using UnityEngine;
 [Serializable]
 public class GameSaveData
 {
+    public string TownName;
     public WorldData worldData = new WorldData();
     public ItemSaveData itemSaveData = new ItemSaveData();
     public NPCData npcData = new NPCData();
@@ -84,6 +85,7 @@ public class ProgressData
 {
     public int currentChapter = 1;
     public int currentTutorialStep = 0;
+    public int HousesBuilt = 0;
     public List<string> completedEventIDs = new List<string>();
     public List<string> unlockedBlueprints = new List<string>();
 }

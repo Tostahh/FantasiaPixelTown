@@ -11,7 +11,11 @@ public class ChapterProgressionManager : MonoBehaviour
     public string blacksmithName = "Blacksmith";
 
     [Header("Chapter 2 Settings")]
-    public string b;
+    public string TownName;
+    public string houseName = "House";
+    public string guardpostName = "GuardPost";
+    public string farmName = "Farm";
+    public int HousesBuilt = 0;
 
     private void Awake()
     {
@@ -60,6 +64,24 @@ public class ChapterProgressionManager : MonoBehaviour
     {
         if (building.blueprint.buildingName == blacksmithName)
             StoryEventManager.Instance.Trigger("BlackSmithRebuilt");
+
+        if (building.blueprint.buildingName == houseName)
+            HousesBuilt++;
+
+        if (building.blueprint.buildingName == guardpostName)
+        {
+            //trigger farm event;
+        }
+
+        if (building.blueprint.buildingName == farmName)
+        {
+            //trigger multiplayer event;
+        }
+
+        if(HousesBuilt >= 5)
+        {
+            StoryEventManager.Instance.Trigger("TheGuardsReturn");
+        }
     }
 
     private void HandleStoryEventCompleted(string eventID)

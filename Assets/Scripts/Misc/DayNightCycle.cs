@@ -24,27 +24,23 @@ public class DayNightCycle : MonoBehaviour
     private float daySeconds;
     private float nightSeconds;
 
-    private const string SaveKey = "DayNight_CurrentHour";
-
-    void Awake()
-    {
-        // Load saved time
-        CurrentHour = PlayerPrefs.HasKey(SaveKey) ? PlayerPrefs.GetFloat(SaveKey) : startHour;
-
-        daySeconds = dayDurationMinutes * 60f;
-        nightSeconds = nightDurationMinutes * 60f;
-
-        IsDay = CurrentHour >= 6f && CurrentHour < 18f;
-    }
-
     void Update()
     {
-        AdvanceTime();
-        UpdateLighting();
+        if (startHour < 0)
+        {
+            return;
+        }
+        else
+        {
+            AdvanceTime();
+            UpdateLighting();
+        }
     }
 
     void AdvanceTime()
     {
+
+
         float deltaTime = Time.deltaTime;
 
         if (IsDay)
@@ -94,13 +90,13 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
-    public void SetTime(float time) => CurrentHour = time;
-
-    private void OnApplicationQuit() => SaveTime();
-    private void OnApplicationPause(bool pause) { if (pause) SaveTime(); }
-    private void SaveTime()
+    public void SetTime(float time)
     {
-        PlayerPrefs.SetFloat(SaveKey, CurrentHour);
-        PlayerPrefs.Save();
+        startHour = 6;
+        CurrentHour = time;
+        daySeconds = dayDurationMinutes * 60f;
+        nightSeconds = nightDurationMinutes * 60f;
+
+        IsDay = CurrentHour >= 6f && CurrentHour < 18f;
     }
 }

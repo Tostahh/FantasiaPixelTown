@@ -48,11 +48,13 @@ public class BuildingManager : MonoBehaviour
     {
         input.Enable();
         input.Player.Move.performed += OnPlaceAttempt;
+        input.Player.Cancel.performed += OnCancelPlacement;
     }
 
     private void OnDisable()
     {
         input.Player.Move.performed -= OnPlaceAttempt;
+        input.Player.Cancel.performed -= OnCancelPlacement;
         input.Disable();
     }
 
@@ -188,6 +190,30 @@ public class BuildingManager : MonoBehaviour
         currentBlueprint = null;
         IsPlacingBuilding = false;
     }
+
+    private void OnCancelPlacement(InputAction.CallbackContext ctx)
+    {
+        if (!IsPlacingBuilding) return;
+
+        // If we are moving an existing building
+        if (buildingToMove != null)
+        {
+            // Restore to original position
+            buildingToMove.transform.position = originalPosition;
+            buildingToMove = null;
+        }
+
+        // Destroy preview and reset placement state
+        if (previewObject != null)
+        {
+            Destroy(previewObject);
+            previewObject = null;
+        }
+
+        currentBlueprint = null;
+        IsPlacingBuilding = false;
+    }
+
 
     private void ApplyTiles(Vector3Int origin, int w, int h, int padding)
     {

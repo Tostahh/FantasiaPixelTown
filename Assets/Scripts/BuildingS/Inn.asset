@@ -35,7 +35,7 @@ MonoBehaviour:
   - npcPrefabs:
     - {fileID: 7360396964822001378, guid: 4ad9fabdb1680ea4088ea5ea71b378c1, type: 3}
     - {fileID: 3573584732488433426, guid: aaa977f792ce9a545a9165d1a147a12f, type: 3}
-    - {fileID: 3573584732488433426, guid: aaa977f792ce9a545a9165d1a147a12f, type: 3}
+    - {fileID: 7137308497850451813, guid: b21d4c0c8700806419d462f55b29942a, type: 3}
     npcCounts: 010000000100000005000000
   homeOffset: {x: 0, y: 0, z: 0}
   isShrine: 0

@@ -36,7 +36,7 @@ MonoBehaviour:
   homeOffset: {x: 0, y: 0, z: 0}
   isShrine: 0
   tierCosts:
-  - goldCost: 0
+  - goldCost: 50
     materialCost: 50
     manaCost: 0
   - goldCost: 150

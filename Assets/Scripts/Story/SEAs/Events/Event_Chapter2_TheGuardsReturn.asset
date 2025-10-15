@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00136c49886b01b48b668af1d85d1614, type: 3}
+  m_Name: Event_Chapter2_TheGuardsReturn
+  m_EditorClassIdentifier: Assembly-CSharp::StoryEventSO
+  eventID: TheGuardsReturn
+  completed: 0
+  actions:
+  - {fileID: 11400000, guid: 880770766025cad4b9d11391015c98ff, type: 2}
+  - {fileID: 11400000, guid: 6c5b06bc4860ecd45b37aae1d380752c, type: 2}
+  - {fileID: 11400000, guid: 3c119c15399b7e04db50ab40915dffbb, type: 2}
+  - {fileID: 11400000, guid: 3c52091f2aeb6ed48b73c698b4804958, type: 2}
+  - {fileID: 11400000, guid: 3f1ad3c27c680c34fad93dd0ca79696e, type: 2}
+  - {fileID: 11400000, guid: 6ee5a6b4708e3aa468eb601d9db3d74d, type: 2}
+  - {fileID: 11400000, guid: 3f1ad3c27c680c34fad93dd0ca79696e, type: 2}
+  - {fileID: 11400000, guid: aaea9d474a3d591419d96a2af85df31a, type: 2}
+  - {fileID: 11400000, guid: 395fd53351f1e314e9e563a6da7c166b, type: 2}
+  - {fileID: 11400000, guid: 80ef2a6cecceedd4cab525cac6e0cd96, type: 2}
+  prerequisiteEventID: 

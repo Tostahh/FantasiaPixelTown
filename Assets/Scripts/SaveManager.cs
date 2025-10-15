@@ -20,6 +20,7 @@ public class SaveManager : MonoBehaviour
     public DayNightCycle dayNightCycle;
     public WeatherSystem weatherSystem;
     public StoryEventManager storyManager;
+    public ChapterProgressionManager chapterprogressionManager;
     public TutorialManager tutorialManager;
     public ResourceManager resourceManager;
 
@@ -65,6 +66,13 @@ public class SaveManager : MonoBehaviour
 
         // --- WORLD ---
         var world = CurrentSave.worldData;
+        
+        if (float.IsInfinity(dayNightCycle.CurrentHour) || float.IsNaN(dayNightCycle.CurrentHour))
+        {
+            Debug.LogError("Invalid CurrentHour detected before saving! Resetting to 6 AM.");
+            dayNightCycle.SetTime(6f);
+        }
+
         world.timeOfDay = dayNightCycle.CurrentHour;
         var (weatherType, lastChangeDay) = weatherSystem.GetWeatherData();
         world.currentWeather = weatherType.ToString();
@@ -80,6 +88,7 @@ public class SaveManager : MonoBehaviour
         // --- PROGRESS ---
         var progress = CurrentSave.progressData;
         progress.currentChapter = storyManager.ChapterNumber;
+        progress.HousesBuilt = chapterprogressionManager.HousesBuilt;
         progress.completedEventIDs = storyManager.GetCompletedEventIDs();
         progress.currentTutorialStep = tutorialManager.currentStep;
         progress.unlockedBlueprints = FindFirstObjectByType<BuildingSelectionUI>().GetUnlockedBlueprintNames();
@@ -108,7 +117,13 @@ public class SaveManager : MonoBehaviour
         // --- WORLD ---
         if (dayNightCycle != null)
         {
-            dayNightCycle.SetTime(CurrentSave.worldData.timeOfDay);
+            float savedTime = CurrentSave.worldData.timeOfDay;
+
+            // Default to 6 AM if new or invalid save time
+            if (savedTime <= 0f || float.IsNaN(savedTime) || float.IsInfinity(savedTime))
+                savedTime = 6f;
+
+            dayNightCycle.SetTime(savedTime);
         }
 
         if (weatherSystem != null)
@@ -158,6 +173,11 @@ public class SaveManager : MonoBehaviour
             storyManager.ChapterNumber = CurrentSave.progressData.currentChapter;
             storyManager.SetCompletedEvents(CurrentSave.progressData.completedEventIDs);
             storyManager.RestorePendingTriggers();
+        }
+
+        if (chapterprogressionManager != null)
+        {
+            chapterprogressionManager.HousesBuilt = CurrentSave.progressData.HousesBuilt;
         }
 
         if (tutorialManager != null)

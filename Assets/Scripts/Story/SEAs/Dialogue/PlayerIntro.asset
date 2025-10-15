@@ -15,7 +15,7 @@ MonoBehaviour:
   dialogueID: PlayerIntro
   lines:
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
-    speakerName: ???
+    speakerName: Hue
     text: Finally... A Village! I've been lost for weeks
   - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
     speakerName: ???
@@ -33,7 +33,7 @@ MonoBehaviour:
     speakerName: ???
     text: "Begin with shelter. The Inn \u2014 it was the soul of this place."
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
-    speakerName: ???
+    speakerName: Hue
     text: "What\u2026 was that?"
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
     speakerName: Hue
@@ -44,7 +44,7 @@ MonoBehaviour:
     text: Oh... this place has seen better days...
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
     speakerName: Hue
-    text: Maybe I can use the Materials around to fix this place up a bit!
+    text: Maybe I can use the materials around to fix this place up a bit!
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
     speakerName: Hue
     text: Time to get to work.

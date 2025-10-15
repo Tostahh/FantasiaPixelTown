@@ -42,13 +42,6 @@ public class WeatherSystem : MonoBehaviour
     {
         if (!dayNightCycle)
             dayNightCycle = FindObjectOfType<DayNightCycle>();
-
-        // If no save data injected, randomize
-        if (CurrentWeather == 0 && lastWeatherChangeDay == -1f)
-        {
-            ChooseRandomWeather();
-            ApplyWeatherSettings();
-        }
     }
 
 

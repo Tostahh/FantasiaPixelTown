@@ -17,4 +17,6 @@ MonoBehaviour:
   actions:
   - {fileID: 11400000, guid: 4c5bb846358498346b93895d2b9fe114, type: 2}
   - {fileID: 11400000, guid: 3f1ad3c27c680c34fad93dd0ca79696e, type: 2}
+  - {fileID: 11400000, guid: 5832cea3fc993de4a956b34a047747c7, type: 2}
+  - {fileID: 11400000, guid: 5d9965265595da443ae51661d0b28b9e, type: 2}
   prerequisiteEventID: ShrineUpgrade

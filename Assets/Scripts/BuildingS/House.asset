@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0968fde2aacb98d4a8b5ec11b26826bd, type: 3}
+  m_Name: House
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingBlueprint
+  tierPrefabs:
+  - {fileID: 4068575108385361368, guid: 64d32d6832975144fb964d8579b23cf7, type: 3}
+  - {fileID: 5701040540477698490, guid: ad57aca3cb7693343881183d55d9754c, type: 3}
+  - {fileID: 5066998227225500930, guid: 963c09d78d547f2429d4c714f12b917b, type: 3}
+  buildingName: House
+  width: 3
+  height: 3
+  obstacleTile: {fileID: 11400000, guid: 6f9093a99bee69a4cb76225279d073d3, type: 2}
+  pathTile: {fileID: 11400000, guid: 310f0d2cfbdd0904380eb9a119ff729a, type: 2}
+  pathPadding: 1
+  visualOffset: {x: 0, y: 1.75, z: 0}
+  npcPrefabsByTier:
+  - npcPrefabs:
+    - {fileID: 7137308497850451813, guid: b21d4c0c8700806419d462f55b29942a, type: 3}
+    npcCounts: 01000000
+  - npcPrefabs:
+    - {fileID: 7137308497850451813, guid: b21d4c0c8700806419d462f55b29942a, type: 3}
+    npcCounts: 02000000
+  - npcPrefabs:
+    - {fileID: 7137308497850451813, guid: b21d4c0c8700806419d462f55b29942a, type: 3}
+    npcCounts: 03000000
+  homeOffset: {x: 0, y: 0, z: 0}
+  isShrine: 0
+  tierCosts:
+  - goldCost: 75
+    materialCost: 75
+    manaCost: 0
+  - goldCost: 200
+    materialCost: 100
+    manaCost: 0
+  - goldCost: 400
+    materialCost: 300
+    manaCost: 25

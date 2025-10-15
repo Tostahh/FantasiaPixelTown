@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.IO;
 using System.Collections;
 
 /// <summary>
@@ -199,6 +200,112 @@ public class SaveManager : MonoBehaviour
         Debug.Log("Game loaded successfully!");
 
         StartCoroutine(NotifyGameLoaded());
+
+        FriendVisitManager.Instance.SetCurrentSaveFromManager();
+    }
+
+    public void LoadFromFile(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            Debug.LogError("[SaveManager] File not found: " + filePath);
+            return;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(filePath);
+            CurrentSave = JsonUtility.FromJson<GameSaveData>(json);
+
+            if (CurrentSave == null)
+            {
+                Debug.LogError("[SaveManager] Failed to parse save file.");
+                return;
+            }
+
+            // --- WORLD ---
+            if (FindObjectOfType<DayNightCycle>() is DayNightCycle dayNightCycle)
+            {
+                float savedTime = CurrentSave.worldData.timeOfDay;
+                if (savedTime <= 0f || float.IsNaN(savedTime) || float.IsInfinity(savedTime))
+                    savedTime = 6f;
+
+                dayNightCycle.SetTime(savedTime);
+            }
+
+            if (FindObjectOfType<WeatherSystem>() is WeatherSystem weatherSystem)
+            {
+                if (System.Enum.TryParse(CurrentSave.worldData.currentWeather, out WeatherType savedWeather))
+                {
+                    float lastChangeDay = CurrentSave.worldData.lastWeatherChangeDay;
+                    weatherSystem.SetWeather(savedWeather, lastChangeDay);
+                }
+                else
+                {
+                    weatherSystem.SetWeather(WeatherType.Clear);
+                }
+            }
+
+            if (FindObjectOfType<BuildingManager>() is BuildingManager buildingManager)
+            {
+                if (CurrentSave.worldData.buildings != null && CurrentSave.worldData.buildings.Count > 0)
+                {
+                    buildingManager.ClearAllBuildings();
+                    buildingManager.SpawnBuildingsFromSave(CurrentSave.worldData.buildings);
+                }
+
+                if (CurrentSave.worldData.rubbles != null && CurrentSave.worldData.rubbles.Count > 0)
+                {
+                    buildingManager.ClearAllRubble();
+                    buildingManager.SpawnRubbleFromSave(CurrentSave.worldData.rubbles);
+                }
+
+                buildingManager.LoadTileData(CurrentSave.worldData.tilemap);
+            }
+
+            if (FindObjectOfType<NPCManager>() is NPCManager npcManager)
+            {
+                npcManager.ClearAllNPCs();
+                npcManager.SpawnNPCsFromSave(CurrentSave.npcData.uniqueNPCs);
+            }
+
+            if (FindObjectOfType<StoryEventManager>() is StoryEventManager storyManager)
+            {
+                storyManager.ChapterNumber = CurrentSave.progressData.currentChapter;
+                storyManager.SetCompletedEvents(CurrentSave.progressData.completedEventIDs);
+                storyManager.RestorePendingTriggers();
+            }
+
+            if (FindObjectOfType<ChapterProgressionManager>() is ChapterProgressionManager chapterManager)
+            {
+                chapterManager.HousesBuilt = CurrentSave.progressData.HousesBuilt;
+            }
+
+            if (FindObjectOfType<TutorialManager>() is TutorialManager tutorialManager)
+            {
+                tutorialManager.SetStep(CurrentSave.progressData.currentTutorialStep);
+                tutorialManager.BeginLoad();
+                tutorialManager.EndLoad();
+            }
+
+            if (FindObjectOfType<BuildingSelectionUI>() is BuildingSelectionUI buildUI)
+            {
+                buildUI.LoadUnlockedBlueprints(CurrentSave.progressData.unlockedBlueprints);
+            }
+
+            if (FindObjectOfType<ResourceManager>() is ResourceManager resourceManager)
+            {
+                resourceManager.gold = CurrentSave.economyData.gold;
+                resourceManager.materials = CurrentSave.economyData.materials;
+                resourceManager.mana = CurrentSave.economyData.mana;
+            }
+
+            Debug.Log("[SaveManager] Save file loaded successfully from: " + filePath);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("[SaveManager] Failed to load save file: " + ex.Message);
+        }
     }
 
     private IEnumerator NotifyGameLoaded()
@@ -214,6 +321,8 @@ public class SaveManager : MonoBehaviour
         if (activeSlot == slot)
             CurrentSave = new GameSaveData();
     }
+
+
 
     private void OnApplicationQuit()
     {

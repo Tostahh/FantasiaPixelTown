@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -15,6 +16,9 @@ public class FriendVisitDiscovery : MonoBehaviour
     private const int port = 7778; // separate discovery port
     private byte[] broadcastData;
 
+    private Coroutine broadcastCoroutine;
+    private Coroutine searchCoroutine;
+
     private void Awake()
     {
         if (Instance != null) Destroy(gameObject);
@@ -27,28 +31,34 @@ public class FriendVisitDiscovery : MonoBehaviour
     // -------------------
     public void StartBroadcast(string friendCode)
     {
-        if (broadcaster != null) StopBroadcast();
+        StopBroadcast();
 
         broadcaster = new UdpClient();
         broadcaster.EnableBroadcast = true;
         broadcastData = Encoding.UTF8.GetBytes(friendCode);
 
-        InvokeRepeating(nameof(Broadcast), 0f, 1f); // now calls class-level method
+        broadcastCoroutine = StartCoroutine(BroadcastLoop());
     }
 
-    private void Broadcast()
+    private IEnumerator BroadcastLoop()
     {
-        if (broadcaster != null && broadcastData != null)
+        while (broadcaster != null && broadcastData != null)
         {
             broadcaster.Send(broadcastData, broadcastData.Length, new IPEndPoint(IPAddress.Broadcast, port));
+            yield return new WaitForSecondsRealtime(1f); // use real-time
         }
     }
 
     public void StopBroadcast()
     {
+        if (broadcastCoroutine != null)
+        {
+            StopCoroutine(broadcastCoroutine);
+            broadcastCoroutine = null;
+        }
+
         if (broadcaster != null)
         {
-            CancelInvoke(nameof(Broadcast));
             broadcaster.Close();
             broadcaster = null;
         }
@@ -59,7 +69,7 @@ public class FriendVisitDiscovery : MonoBehaviour
     // -------------------
     public void StartListening(Action<string, string> onRoomFound)
     {
-        if (listener != null) StopListening();
+        StopListening();
 
         listener = new UdpClient(port);
         listener.BeginReceive(OnReceived, onRoomFound);
@@ -74,7 +84,8 @@ public class FriendVisitDiscovery : MonoBehaviour
 
         onRoomFound?.Invoke(receivedCode, ep.Address.ToString());
 
-        listener.BeginReceive(OnReceived, onRoomFound);
+        if (listener != null)
+            listener.BeginReceive(OnReceived, onRoomFound);
     }
 
     public void StopListening()
@@ -85,25 +96,25 @@ public class FriendVisitDiscovery : MonoBehaviour
 
     public void SearchForRooms(Action<List<RoomInfo>> onRoomsFound, float searchDuration = 3f)
     {
+        StopListening();
         List<RoomInfo> foundRooms = new List<RoomInfo>();
 
-        // Start listening
         StartListening((code, ip) =>
         {
-            // Avoid duplicates
             if (!foundRooms.Any(r => r.ip == ip))
-            {
                 foundRooms.Add(new RoomInfo(code, ip));
-            }
         });
 
-        Invoke(nameof(FinishSearch), searchDuration);
+        if (searchCoroutine != null) StopCoroutine(searchCoroutine);
+        searchCoroutine = StartCoroutine(FinishSearchAfterRealtime(searchDuration, foundRooms, onRoomsFound));
+    }
 
-        void FinishSearch()
-        {
-            StopListening();
-            onRoomsFound?.Invoke(foundRooms);
-        }
+    private IEnumerator FinishSearchAfterRealtime(float duration, List<RoomInfo> foundRooms, Action<List<RoomInfo>> callback)
+    {
+        yield return new WaitForSecondsRealtime(duration);
+        StopListening();
+        callback?.Invoke(foundRooms);
+        searchCoroutine = null;
     }
 
     public class RoomInfo

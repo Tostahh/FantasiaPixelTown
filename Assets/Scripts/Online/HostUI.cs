@@ -6,6 +6,7 @@ public class HostUI : MonoBehaviour
     {
         // Make sure save file is up to date
         FriendVisitManager.Instance.SetCurrentSaveFromManager();
+        FriendVisitManager.Instance.SetFriendCode(FriendManager.Instance.Profile.friendCode);
 
         // Start hosting network session
         FriendVisitManager.Instance.StartHosting();

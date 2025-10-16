@@ -1,28 +1,41 @@
-using UnityEngine;
-using Unity.Networking.Transport;
-using Unity.Collections;
-using System.IO;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using Unity.Collections;
+using Unity.Networking.Transport;
+using Unity.Networking.Transport.Utilities;
+using UnityEngine;
 
 public class FriendVisitManager : MonoBehaviour
 {
     public static FriendVisitManager Instance { get; private set; }
 
     private NetworkDriver driver;
-    private NetworkConnection connection;
-    private VisitConnectionHandler connectionHandler;
-    private bool isRunning;
+    private NetworkPipeline reliablePipeline;
+    private NetworkPipeline fragmentedReliablePipeline;
+
+    private List<NetworkConnection> activeConnections = new();
+    private NetworkConnection clientConnection;
+
     private bool isHost;
+    private bool isRunning;
 
     [SerializeField] private ushort port = 7777;
-    public string currentSaveFile = "current_save.json";
     [SerializeField] private string spectatorSaveFile = "spectator_save.json";
-    public string CurrentFriendCode { get; private set; }
+
+    private string currentFriendCode;
+    public string CurrentFriendCode => currentFriendCode;
+
     private void Awake()
     {
-        if (Instance != null) Destroy(gameObject);
-        else Instance = this;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
+        Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
@@ -33,23 +46,45 @@ public class FriendVisitManager : MonoBehaviour
         driver.ScheduleUpdate().Complete();
 
         if (isHost)
+        {
             AcceptConnections();
+            ReceiveFromVisitors();
+        }
         else
-            connectionHandler?.PollEvents();
+        {
+            ReceiveFromHost();
+        }
     }
+
+    // -------------------- HOST --------------------
+
+    public void SetFriendCode(string code) => currentFriendCode = code;
 
     public void StartHosting()
     {
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.SaveGame();
+        SaveManager.Instance?.SaveGame();
 
-        driver = NetworkDriver.Create();
-        var endpoint = NetworkEndpoint.AnyIpv4; // or NetworkEndpoint.LoopbackIpv4 for local testing
-        endpoint.Port = port;
+        if (isRunning) StopHostingOrDisconnect();
 
+        var settings = new NetworkSettings();
+        settings.WithNetworkConfigParameters(
+            receiveQueueCapacity: 64,
+            sendQueueCapacity: 64,
+            maxMessageSize: 1400 // <= Required for UDP MTU compliance
+        );
+
+        driver = NetworkDriver.Create(settings);
+
+        reliablePipeline = driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
+        fragmentedReliablePipeline = driver.CreatePipeline(
+            typeof(FragmentationPipelineStage),
+            typeof(ReliableSequencedPipelineStage)
+        );
+
+        var endpoint = NetworkEndpoint.AnyIpv4.WithPort(port);
         if (driver.Bind(endpoint) != 0)
         {
-            Debug.LogError("Failed to bind port " + port);
+            Debug.LogError($"[FriendVisitManager] Failed to bind to port {port}");
             driver.Dispose();
             return;
         }
@@ -57,29 +92,8 @@ public class FriendVisitManager : MonoBehaviour
         driver.Listen();
         isHost = true;
         isRunning = true;
-        Debug.Log("Hosting on port " + port);
-    }
 
-    public void JoinHost(string ip)
-    {
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.SaveGame();
-
-        driver = NetworkDriver.Create();
-        connection = default;
-
-        if (NetworkEndpoint.TryParse(ip, port, out NetworkEndpoint endpoint))
-        {
-            connection = driver.Connect(endpoint);
-            connectionHandler = new VisitConnectionHandler(driver, connection, OnDataReceived, OnConnectedToHost, OnDisconnected);
-            isHost = false;
-            isRunning = true;
-            Debug.Log("Joining host at " + ip + ":" + port);
-        }
-        else
-        {
-            Debug.LogError("Invalid IP address: " + ip);
-        }
+        Debug.Log($"[FriendVisitManager] Hosting on port {port}");
     }
 
     private void AcceptConnections()
@@ -87,111 +101,175 @@ public class FriendVisitManager : MonoBehaviour
         NetworkConnection incoming;
         while ((incoming = driver.Accept()) != default)
         {
-            connection = incoming;
-            Debug.Log("Visitor connected!");
-            connectionHandler = new VisitConnectionHandler(driver, connection, OnDataReceived);
-            SendSaveFileToVisitor();
+            activeConnections.Add(incoming);
+            Debug.Log("[FriendVisitManager] Visitor connected");
+            SendSaveFileToVisitor(incoming);
         }
     }
 
-    private void SendSaveFileToVisitor()
+    private void ReceiveFromVisitors()
     {
-        string path = Path.Combine(Application.persistentDataPath, currentSaveFile);
-        if (!File.Exists(path))
+        for (int i = activeConnections.Count - 1; i >= 0; i--)
         {
-            Debug.LogWarning("No save file found to send.");
-            return;
+            var conn = activeConnections[i];
+            DataStreamReader reader;
+
+            NetworkEvent.Type evt;
+            while ((evt = conn.PopEvent(driver, out reader)) != NetworkEvent.Type.Empty)
+            {
+                if (evt == NetworkEvent.Type.Disconnect)
+                {
+                    Debug.Log("[FriendVisitManager] Visitor disconnected");
+                    activeConnections.RemoveAt(i);
+                    break;
+                }
+            }
         }
-
-        byte[] bytes = File.ReadAllBytes(path);
-
-        // prepend length
-        byte[] dataWithLength = new byte[4 + bytes.Length];
-        BitConverter.GetBytes(bytes.Length).CopyTo(dataWithLength, 0);
-        bytes.CopyTo(dataWithLength, 4);
-
-        using (var nativeArray = new NativeArray<byte>(dataWithLength, Allocator.Temp))
-        {
-            driver.BeginSend(connection, out var sendHandle);
-            sendHandle.WriteBytes(nativeArray);
-            driver.EndSend(sendHandle);
-        }
-
-        Debug.Log("Sent save file (" + bytes.Length + " bytes).");
     }
 
-
-    private void OnDataReceived(DataStreamReader reader)
-    {
-        // Read length (first 4 bytes)
-        int length = reader.ReadInt();
-        byte[] data = new byte[length];
-        reader.ReadBytes(data);
-
-        string dest = Path.Combine(Application.persistentDataPath, spectatorSaveFile);
-        File.WriteAllBytes(dest, data);
-
-        Debug.Log($"[FriendVisitManager] Received save file ? {dest}");
-        AutoLoadSpectatorSave(dest);
-    }
-
-
-    private void OnConnectedToHost() => Debug.Log("Connected to host");
-    private void OnDisconnected() => Debug.LogWarning("Disconnected from host");
-
-    private void AutoLoadSpectatorSave(string path)
-    {
-        SaveManager.Instance.LoadFromFile(path);
-    }
-
-    public void SetCurrentSaveFromManager()
+    private void SendSaveFileToVisitor(NetworkConnection conn)
     {
         if (SaveManager.Instance?.CurrentSave == null)
         {
-            Debug.LogWarning("[FriendVisitManager] No current save loaded.");
+            Debug.LogWarning("[FriendVisitManager] No save data to send.");
             return;
         }
 
-        currentSaveFile = Path.Combine(Application.persistentDataPath, $"slot_{SaveManager.Instance.activeSlot}_save.json");
+        string json = JsonUtility.ToJson(SaveManager.Instance.CurrentSave, true);
+        byte[] fullData = Encoding.UTF8.GetBytes(json);
 
-        // Optionally auto-save so the file is up to date
-        SaveManager.Instance.SaveGame();
+        Debug.Log($"[FriendVisitManager] Sending save file ({fullData.Length} bytes) to visitor");
+
+        using var nativeData = new NativeArray<byte>(fullData, Allocator.Temp);
+        driver.BeginSend(fragmentedReliablePipeline, conn, out var writer);
+        writer.WriteBytes(nativeData);
+        driver.EndSend(writer);
     }
 
-    public void SetFriendCode(string code)
+    // -------------------- CLIENT --------------------
+
+    public void JoinHost(string ip)
     {
-        CurrentFriendCode = code;
+        if (isRunning) StopHostingOrDisconnect();
+
+        var settings = new NetworkSettings();
+        settings.WithNetworkConfigParameters(
+            receiveQueueCapacity: 64,
+            sendQueueCapacity: 64,
+            maxMessageSize: 1400
+        );
+
+        driver = NetworkDriver.Create(settings);
+
+        reliablePipeline = driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
+        fragmentedReliablePipeline = driver.CreatePipeline(
+            typeof(FragmentationPipelineStage),
+            typeof(ReliableSequencedPipelineStage)
+        );
+
+        if (!NetworkEndpoint.TryParse(ip, port, out var endpoint))
+        {
+            Debug.LogError($"[FriendVisitManager] Invalid IP: {ip}");
+            return;
+        }
+
+        clientConnection = driver.Connect(endpoint);
+        isHost = false;
+        isRunning = true;
+
+        Debug.Log($"[FriendVisitManager] Joining host at {ip}:{port}");
     }
 
-    private void OnApplicationQuit()
+    private List<byte> receiveBuffer = new();
+
+    private void ReceiveFromHost()
     {
-        StopHostingOrDisconnect();
+        if (!clientConnection.IsCreated) return;
+
+        DataStreamReader reader;
+        NetworkEvent.Type evt;
+        while ((evt = clientConnection.PopEvent(driver, out reader)) != NetworkEvent.Type.Empty)
+        {
+            switch (evt)
+            {
+                case NetworkEvent.Type.Connect:
+                    Debug.Log("[FriendVisitManager] Connected to host");
+                    break;
+
+                case NetworkEvent.Type.Data:
+                    ReadSaveData(reader);
+                    break;
+
+                case NetworkEvent.Type.Disconnect:
+                    Debug.LogWarning("[FriendVisitManager] Disconnected from host");
+                    clientConnection = default;
+                    break;
+            }
+        }
     }
+
+    private void ReadSaveData(DataStreamReader reader)
+    {
+        if (reader.Length <= 0) return;
+
+        byte[] bytes = new byte[reader.Length];
+        reader.ReadBytes(bytes);
+
+        receiveBuffer.AddRange(bytes);
+        Debug.Log($"[FriendVisitManager] Received {bytes.Length} bytes (total {receiveBuffer.Count})");
+
+        // FragmentationPipeline automatically reassembles, so we get the full file in one piece.
+        string dest = Path.Combine(Application.persistentDataPath, spectatorSaveFile);
+        File.WriteAllBytes(dest, receiveBuffer.ToArray());
+        Debug.Log($"[FriendVisitManager] Full save file received ({receiveBuffer.Count} bytes) -> {dest}");
+        receiveBuffer.Clear();
+
+        AutoLoadSpectatorSave(dest);
+    }
+
+    private void AutoLoadSpectatorSave(string path)
+    {
+        try
+        {
+            SaveManager.Instance?.LoadFromFile(path);
+            Debug.Log($"[FriendVisitManager] Spectator save loaded from {path}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[FriendVisitManager] Failed to load spectator save: {e.Message}");
+        }
+    }
+
+    // -------------------- CLEANUP --------------------
+
+    private void OnApplicationQuit() => StopHostingOrDisconnect();
 
     public void StopHostingOrDisconnect()
     {
+        if (!isRunning) return;
+
         if (isHost)
-        {
-            Debug.Log("Shutting down host...");
-        }
+            Debug.Log("[FriendVisitManager] Shutting down host...");
         else
+            Debug.Log("[FriendVisitManager] Disconnecting from host...");
+
+        foreach (var conn in activeConnections)
         {
-            Debug.Log("Disconnecting from host...");
+            if (conn.IsCreated)
+                conn.Disconnect(driver);
         }
+        activeConnections.Clear();
 
-        if (connection.IsCreated)
-            connection.Disconnect(driver);
-
-        connectionHandler = null;
+        if (clientConnection.IsCreated)
+            clientConnection.Disconnect(driver);
 
         if (driver.IsCreated)
         {
             driver.Dispose();
-            Debug.Log("Network driver disposed.");
+            Debug.Log("[FriendVisitManager] Network driver disposed");
         }
 
         isRunning = false;
         isHost = false;
     }
-
 }

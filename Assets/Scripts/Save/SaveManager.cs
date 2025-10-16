@@ -200,8 +200,6 @@ public class SaveManager : MonoBehaviour
         Debug.Log("Game loaded successfully!");
 
         StartCoroutine(NotifyGameLoaded());
-
-        FriendVisitManager.Instance.SetCurrentSaveFromManager();
     }
 
     public void LoadFromFile(string filePath)

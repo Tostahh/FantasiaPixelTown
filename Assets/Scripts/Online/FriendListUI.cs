@@ -79,23 +79,31 @@ public class FriendListUI : MonoBehaviour
     {
         Debug.Log($"[FriendListUI] Searching for {friend.playerName}'s room ({friend.friendCode})");
 
-        // Ensure the visit manager is aware of the friend code we are trying to join
+        // Ensure the visit manager knows the friend code
         FriendVisitManager.Instance.SetFriendCode(friend.friendCode);
 
         // Start searching for rooms
         FriendVisitDiscovery.Instance.SearchForRooms((foundRooms) =>
         {
+            if (foundRooms == null || foundRooms.Count == 0)
+            {
+                Debug.LogWarning($"[FriendListUI] No active rooms found for {friend.playerName}");
+                return;
+            }
+
             // Filter rooms by friend code
             var matchingRoom = foundRooms.FirstOrDefault(r => r.friendCode == friend.friendCode);
+
             if (matchingRoom != null)
             {
                 Debug.Log($"[FriendListUI] Found matching room for {friend.playerName}: {matchingRoom.ip}");
-                // Connect to the host
+
+                // Connect to the host and automatically receive the save
                 FriendVisitManager.Instance.JoinHost(matchingRoom.ip);
             }
             else
             {
-                Debug.LogWarning($"[FriendListUI] No active rooms found for {friend.playerName}");
+                Debug.LogWarning($"[FriendListUI] No matching rooms found for {friend.playerName}");
             }
         });
     }

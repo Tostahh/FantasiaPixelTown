@@ -13,7 +13,7 @@ public class FriendVisitDiscovery : MonoBehaviour
 
     private UdpClient listener;
     private UdpClient broadcaster;
-    private const int port = 7778; // separate discovery port
+    private const int port = 2468;
     private byte[] broadcastData;
 
     private Coroutine broadcastCoroutine;
@@ -29,23 +29,46 @@ public class FriendVisitDiscovery : MonoBehaviour
     // -------------------
     // Host broadcasting
     // -------------------
+
+
+
     public void StartBroadcast(string friendCode)
     {
         StopBroadcast();
 
-        broadcaster = new UdpClient();
-        broadcaster.EnableBroadcast = true;
-        broadcastData = Encoding.UTF8.GetBytes(friendCode);
+        try
+        {
+            broadcaster = new UdpClient();
+            broadcaster.EnableBroadcast = true;
+            broadcaster.MulticastLoopback = true; // allows host to see its own broadcast
+            broadcastData = Encoding.UTF8.GetBytes(friendCode);
 
-        broadcastCoroutine = StartCoroutine(BroadcastLoop());
+            Debug.Log("[FriendVisitDiscovery] Starting broadcast...");
+            broadcastCoroutine = StartCoroutine(BroadcastLoop());
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[FriendVisitDiscovery] Failed to start broadcast: {ex.Message}");
+        }
     }
 
     private IEnumerator BroadcastLoop()
     {
+        IPEndPoint broadcastEP = new IPEndPoint(IPAddress.Broadcast, port);
+        Debug.Log($"[FriendVisitDiscovery] Using broadcast {broadcastEP}");
+
         while (broadcaster != null && broadcastData != null)
         {
-            broadcaster.Send(broadcastData, broadcastData.Length, new IPEndPoint(IPAddress.Broadcast, port));
-            yield return new WaitForSecondsRealtime(1f); // use real-time
+            try
+            {
+                broadcaster.Send(broadcastData, broadcastData.Length, broadcastEP);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[FriendVisitDiscovery] Broadcast error: {ex.Message}");
+            }
+
+            yield return new WaitForSecondsRealtime(1f);
         }
     }
 
@@ -69,23 +92,52 @@ public class FriendVisitDiscovery : MonoBehaviour
     // -------------------
     public void StartListening(Action<string, string> onRoomFound)
     {
-        StopListening();
+        StopListening(); // close any existing listener
 
-        listener = new UdpClient(port);
-        listener.BeginReceive(OnReceived, onRoomFound);
+        try
+        {
+            listener = new UdpClient(new IPEndPoint(IPAddress.Any, port));
+
+            // Allow multiple listeners on same port for same-machine testing
+            listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            listener.EnableBroadcast = true;
+
+            Debug.Log($"[FriendVisitDiscovery] Listening on UDP port {port}");
+            listener.BeginReceive(OnReceived, onRoomFound);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[FriendVisitDiscovery] Failed to start listener: {ex.Message}");
+        }
     }
 
     private void OnReceived(IAsyncResult ar)
     {
+        if (listener == null) return;
+
         var onRoomFound = (Action<string, string>)ar.AsyncState;
         IPEndPoint ep = new IPEndPoint(IPAddress.Any, port);
-        byte[] data = listener.EndReceive(ar, ref ep);
-        string receivedCode = Encoding.UTF8.GetString(data);
 
-        onRoomFound?.Invoke(receivedCode, ep.Address.ToString());
+        try
+        {
+            byte[] data = listener.EndReceive(ar, ref ep);
+            string receivedCode = Encoding.UTF8.GetString(data);
 
-        if (listener != null)
-            listener.BeginReceive(OnReceived, onRoomFound);
+            Debug.Log($"[FriendVisitDiscovery] Received broadcast '{receivedCode}' from {ep.Address}");
+            onRoomFound?.Invoke(receivedCode, ep.Address.ToString());
+        }
+        catch (ObjectDisposedException) { }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[FriendVisitDiscovery] Receive error: {ex.Message}");
+        }
+
+        // Continue listening safely
+        try
+        {
+            listener?.BeginReceive(OnReceived, onRoomFound);
+        }
+        catch { }
     }
 
     public void StopListening()
@@ -97,15 +149,21 @@ public class FriendVisitDiscovery : MonoBehaviour
     public void SearchForRooms(Action<List<RoomInfo>> onRoomsFound, float searchDuration = 3f)
     {
         StopListening();
+
         List<RoomInfo> foundRooms = new List<RoomInfo>();
+
+        Debug.Log("[FriendVisitDiscovery] Starting search for rooms...");
 
         StartListening((code, ip) =>
         {
+            Debug.Log($"[FriendVisitDiscovery] Room found! {code} @ {ip}");
             if (!foundRooms.Any(r => r.ip == ip))
                 foundRooms.Add(new RoomInfo(code, ip));
         });
 
-        if (searchCoroutine != null) StopCoroutine(searchCoroutine);
+        if (searchCoroutine != null)
+            StopCoroutine(searchCoroutine);
+
         searchCoroutine = StartCoroutine(FinishSearchAfterRealtime(searchDuration, foundRooms, onRoomsFound));
     }
 
@@ -113,25 +171,26 @@ public class FriendVisitDiscovery : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(duration);
         StopListening();
+        Debug.Log($"[FriendVisitDiscovery] Search finished. Found {foundRooms.Count} rooms.");
         callback?.Invoke(foundRooms);
         searchCoroutine = null;
-    }
-
-    public class RoomInfo
-    {
-        public string friendCode;
-        public string ip;
-
-        public RoomInfo(string code, string ip)
-        {
-            friendCode = code;
-            this.ip = ip;
-        }
     }
 
     private void OnApplicationQuit()
     {
         StopListening();
         StopBroadcast();
+    }
+}
+
+public class RoomInfo
+{
+    public string friendCode;
+    public string ip;
+
+    public RoomInfo(string code, string ip)
+    {
+        friendCode = code;
+        this.ip = ip;
     }
 }

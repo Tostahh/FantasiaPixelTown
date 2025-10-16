@@ -9748,7 +9748,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7e0b7c6c5b2db04b91ae5d0b016042f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FriendVisitManager
-  port: 7777
+  port: 7676
   currentSaveFile: current_save.json
   spectatorSaveFile: spectator_save.json
 --- !u!114 &734514672

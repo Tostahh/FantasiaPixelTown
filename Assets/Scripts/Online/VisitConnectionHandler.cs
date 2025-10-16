@@ -1,7 +1,7 @@
+using System;
 using Unity.Collections;
 using Unity.Networking.Transport;
 using UnityEngine;
-using System;
 
 public class VisitConnectionHandler
 {
@@ -27,8 +27,7 @@ public class VisitConnectionHandler
 
     public void PollEvents()
     {
-        if (!connection.IsCreated)
-            return;
+        if (!connection.IsCreated) return;
 
         DataStreamReader stream;
         NetworkEvent.Type cmd;
@@ -38,20 +37,32 @@ public class VisitConnectionHandler
             switch (cmd)
             {
                 case NetworkEvent.Type.Connect:
-                    Debug.Log("[VisitConnectionHandler] Connected.");
+                    Debug.Log("[VisitConnectionHandler] Connected to host.");
                     onConnected?.Invoke();
                     break;
 
                 case NetworkEvent.Type.Data:
+                    // Forward all received data to FriendVisitManager for processing
                     onDataReceived?.Invoke(stream);
                     break;
 
                 case NetworkEvent.Type.Disconnect:
-                    Debug.Log("[VisitConnectionHandler] Disconnected.");
+                    Debug.LogWarning("[VisitConnectionHandler] Disconnected from host.");
                     connection = default;
                     onDisconnected?.Invoke();
                     break;
             }
+        }
+    }
+
+    public bool IsConnected => connection.IsCreated;
+
+    public void Disconnect()
+    {
+        if (connection.IsCreated)
+        {
+            connection.Disconnect(driver);
+            connection = default;
         }
     }
 }

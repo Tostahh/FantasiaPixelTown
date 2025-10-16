@@ -2,10 +2,14 @@ using UnityEngine;
 
 public class HostUI : MonoBehaviour
 {
+    private void Start()
+    {
+        Debug.LogError("Start Log");
+    }
+
     public void HostRoom()
     {
         // Make sure save file is up to date
-        FriendVisitManager.Instance.SetCurrentSaveFromManager();
         FriendVisitManager.Instance.SetFriendCode(FriendManager.Instance.Profile.friendCode);
 
         // Start hosting network session

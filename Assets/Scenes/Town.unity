@@ -69770,7 +69770,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: accc880f4ce259047a931f81d2850bf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpectatorManager
-  disableInSpectator: []
+  disableInSpectator:
+  - {fileID: 1452508093}
+  - {fileID: 1452508095}
+  - {fileID: 1452508096}
+  - {fileID: 1029358461}
+  - {fileID: 248915274}
+  - {fileID: 248915273}
+  - {fileID: 1308728418}
+  - {fileID: 1308728416}
+  - {fileID: 1308728415}
+  - {fileID: 1308728414}
+  - {fileID: 1308728411}
+  - {fileID: 1308728412}
 --- !u!1 &1463296037
 GameObject:
   m_ObjectHideFlags: 0

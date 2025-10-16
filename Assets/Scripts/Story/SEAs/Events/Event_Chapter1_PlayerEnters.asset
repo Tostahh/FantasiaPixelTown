@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Event_Chapter1_PlayerEnters
   m_EditorClassIdentifier: Assembly-CSharp::StoryEventSO
   eventID: PlayerEnters
-  completed: 1
+  completed: 0
   actions:
   - {fileID: 11400000, guid: 4c5bb846358498346b93895d2b9fe114, type: 2}
   - {fileID: 11400000, guid: 3f1ad3c27c680c34fad93dd0ca79696e, type: 2}

@@ -12,34 +12,11 @@ public class SpectatorManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
         Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        // Subscribe to SaveManager load event
-        SaveManager.GameLoaded += ApplySpectatorMode;
-    }
-
-    private void OnDestroy()
-    {
-        SaveManager.GameLoaded -= ApplySpectatorMode;
-    }
-
-    private void Start()
-    {
-        // Apply once on start just in case
-        ApplySpectatorMode();
     }
 
     public void ApplySpectatorMode()
     {
-        if (SaveManager.Instance == null) return;
-
         bool isSpectator = SaveManager.Instance.Spectator;
 
         if (isSpectator == currentSpectatorState)
@@ -58,6 +35,9 @@ public class SpectatorManager : MonoBehaviour
 
     private void Update()
     {
-
+        if(SaveManager.Instance.Spectator)
+        {
+            ApplySpectatorMode();
+        }
     }
 }

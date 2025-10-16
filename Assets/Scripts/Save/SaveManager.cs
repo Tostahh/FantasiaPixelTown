@@ -12,6 +12,8 @@ public class SaveManager : MonoBehaviour
 {
     public static Action GameLoaded = delegate { };
 
+    public bool Spectator;
+
     public static SaveManager Instance;
     public int activeSlot = 0;
 
@@ -64,7 +66,10 @@ public class SaveManager : MonoBehaviour
             return;
         }
 
-
+        if (Spectator)
+        {
+            return;
+        }
         // --- WORLD ---
         var world = CurrentSave.worldData;
         

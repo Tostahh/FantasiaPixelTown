@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -13,7 +14,6 @@ public class FriendVisitManager : MonoBehaviour
 
     private NetworkDriver driver;
     private NetworkPipeline reliablePipeline;
-    private NetworkPipeline fragmentedReliablePipeline;
 
     private List<NetworkConnection> activeConnections = new();
     private NetworkConnection clientConnection;
@@ -25,6 +25,13 @@ public class FriendVisitManager : MonoBehaviour
     [SerializeField] private string spectatorSaveFile = "spectator_save.json";
 
     private string currentFriendCode;
+
+    // Keep packets under 1400 bytes for Unity Transport UDP MTU
+    private const int CHUNK_SIZE = 1200;
+
+    private Dictionary<int, byte[]> receivedChunks = new();
+    private int expectedChunks = -1;
+
     public string CurrentFriendCode => currentFriendCode;
 
     private void Awake()
@@ -68,18 +75,13 @@ public class FriendVisitManager : MonoBehaviour
 
         var settings = new NetworkSettings();
         settings.WithNetworkConfigParameters(
-            receiveQueueCapacity: 64,
-            sendQueueCapacity: 64,
-            maxMessageSize: 1400 // <= Required for UDP MTU compliance
+            receiveQueueCapacity: 128,
+            sendQueueCapacity: 128,
+            maxMessageSize: 1400 // Must stay under UDP MTU
         );
 
         driver = NetworkDriver.Create(settings);
-
         reliablePipeline = driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
-        fragmentedReliablePipeline = driver.CreatePipeline(
-            typeof(FragmentationPipelineStage),
-            typeof(ReliableSequencedPipelineStage)
-        );
 
         var endpoint = NetworkEndpoint.AnyIpv4.WithPort(port);
         if (driver.Bind(endpoint) != 0)
@@ -103,7 +105,7 @@ public class FriendVisitManager : MonoBehaviour
         {
             activeConnections.Add(incoming);
             Debug.Log("[FriendVisitManager] Visitor connected");
-            SendSaveFileToVisitor(incoming);
+            StartCoroutine(SendSaveFileInChunks(incoming));
         }
     }
 
@@ -127,23 +129,48 @@ public class FriendVisitManager : MonoBehaviour
         }
     }
 
-    private void SendSaveFileToVisitor(NetworkConnection conn)
+    private IEnumerator SendSaveFileInChunks(NetworkConnection conn)
     {
         if (SaveManager.Instance?.CurrentSave == null)
         {
             Debug.LogWarning("[FriendVisitManager] No save data to send.");
-            return;
+            yield break;
         }
 
         string json = JsonUtility.ToJson(SaveManager.Instance.CurrentSave, true);
         byte[] fullData = Encoding.UTF8.GetBytes(json);
 
-        Debug.Log($"[FriendVisitManager] Sending save file ({fullData.Length} bytes) to visitor");
+        int totalChunks = Mathf.CeilToInt(fullData.Length / (float)CHUNK_SIZE);
+        Debug.Log($"[FriendVisitManager] Sending save file ({fullData.Length} bytes) in {totalChunks} chunks");
 
-        using var nativeData = new NativeArray<byte>(fullData, Allocator.Temp);
-        driver.BeginSend(fragmentedReliablePipeline, conn, out var writer);
-        writer.WriteBytes(nativeData);
-        driver.EndSend(writer);
+        for (int chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++)
+        {
+            if (!conn.IsCreated)
+            {
+                Debug.LogWarning("[FriendVisitManager] Connection lost mid-send");
+                yield break;
+            }
+
+            int offset = chunkIndex * CHUNK_SIZE;
+            int length = Mathf.Min(CHUNK_SIZE, fullData.Length - offset);
+
+            using var chunk = new NativeArray<byte>(length, Allocator.Temp);
+            NativeArray<byte>.Copy(fullData, offset, chunk, 0, length);
+
+            driver.BeginSend(reliablePipeline, conn, out var writer);
+            writer.WriteInt(chunkIndex);   // chunk index
+            writer.WriteInt(totalChunks);  // total chunk count
+            writer.WriteBytes(chunk);
+            driver.EndSend(writer);
+
+            Debug.Log($"[FriendVisitManager] Sent chunk {chunkIndex + 1}/{totalChunks} ({length} bytes)");
+
+            // Yield every few chunks to avoid buffer overflow
+            if (chunkIndex % 5 == 0)
+                yield return null;
+        }
+
+        Debug.Log("[FriendVisitManager] Finished sending save file.");
     }
 
     // -------------------- CLIENT --------------------
@@ -154,18 +181,13 @@ public class FriendVisitManager : MonoBehaviour
 
         var settings = new NetworkSettings();
         settings.WithNetworkConfigParameters(
-            receiveQueueCapacity: 64,
-            sendQueueCapacity: 64,
+            receiveQueueCapacity: 128,
+            sendQueueCapacity: 128,
             maxMessageSize: 1400
         );
 
         driver = NetworkDriver.Create(settings);
-
         reliablePipeline = driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
-        fragmentedReliablePipeline = driver.CreatePipeline(
-            typeof(FragmentationPipelineStage),
-            typeof(ReliableSequencedPipelineStage)
-        );
 
         if (!NetworkEndpoint.TryParse(ip, port, out var endpoint))
         {
@@ -180,11 +202,13 @@ public class FriendVisitManager : MonoBehaviour
         Debug.Log($"[FriendVisitManager] Joining host at {ip}:{port}");
     }
 
-    private List<byte> receiveBuffer = new();
-
     private void ReceiveFromHost()
     {
-        if (!clientConnection.IsCreated) return;
+        if (!clientConnection.IsCreated)
+        {
+            Debug.LogError("[FriendVisitManager] ClientConnectionNotMade");
+            return;
+        }
 
         DataStreamReader reader;
         NetworkEvent.Type evt;
@@ -210,27 +234,53 @@ public class FriendVisitManager : MonoBehaviour
 
     private void ReadSaveData(DataStreamReader reader)
     {
-        if (reader.Length <= 0) return;
+        if (reader.Length <= 0)
+        {
+            Debug.LogError("Received empty chunk");
+            return;
+        }
 
-        byte[] bytes = new byte[reader.Length];
+        int chunkIndex = reader.ReadInt();
+        int totalChunks = reader.ReadInt();
+
+        if (expectedChunks == -1)
+            expectedChunks = totalChunks;
+
+        byte[] bytes = new byte[reader.Length - 8];
         reader.ReadBytes(bytes);
 
-        receiveBuffer.AddRange(bytes);
-        Debug.Log($"[FriendVisitManager] Received {bytes.Length} bytes (total {receiveBuffer.Count})");
+        receivedChunks[chunkIndex] = bytes;
+        Debug.Log($"[FriendVisitManager] Received chunk {chunkIndex + 1}/{totalChunks} ({bytes.Length} bytes)");
 
-        // FragmentationPipeline automatically reassembles, so we get the full file in one piece.
-        string dest = Path.Combine(Application.persistentDataPath, spectatorSaveFile);
-        File.WriteAllBytes(dest, receiveBuffer.ToArray());
-        Debug.Log($"[FriendVisitManager] Full save file received ({receiveBuffer.Count} bytes) -> {dest}");
-        receiveBuffer.Clear();
+        if (receivedChunks.Count >= expectedChunks)
+        {
+            Debug.Log("[FriendVisitManager] All chunks received, reassembling...");
 
-        AutoLoadSpectatorSave(dest);
+            List<byte> fullData = new();
+            for (int i = 0; i < expectedChunks; i++)
+            {
+                if (receivedChunks.TryGetValue(i, out var chunk))
+                    fullData.AddRange(chunk);
+                else
+                    Debug.LogWarning($"Missing chunk {i}");
+            }
+
+            string dest = Path.Combine(Application.persistentDataPath, spectatorSaveFile);
+            File.WriteAllBytes(dest, fullData.ToArray());
+            Debug.Log($"[FriendVisitManager] Full save file written ({fullData.Count} bytes) -> {dest}");
+
+            receivedChunks.Clear();
+            expectedChunks = -1;
+
+            AutoLoadSpectatorSave(dest);
+        }
     }
 
     private void AutoLoadSpectatorSave(string path)
     {
         try
         {
+            SaveManager.Instance.Spectator = true;
             SaveManager.Instance?.LoadFromFile(path);
             Debug.Log($"[FriendVisitManager] Spectator save loaded from {path}");
         }

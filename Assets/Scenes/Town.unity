@@ -6346,7 +6346,7 @@ MonoBehaviour:
   nightColor: {r: 0.1, g: 0.1, b: 0.3, a: 1}
   dayIntensity: 0.9
   nightIntensity: 0.4
-  startHour: -1
+  startHour: 0
   CurrentHour: 0
 --- !u!114 &248915271
 MonoBehaviour:
@@ -9749,7 +9749,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FriendVisitManager
   port: 7676
-  currentSaveFile: current_save.json
   spectatorSaveFile: spectator_save.json
 --- !u!114 &734514672
 MonoBehaviour:
@@ -69645,6 +69644,7 @@ GameObject:
   - component: {fileID: 1452508095}
   - component: {fileID: 1452508096}
   - component: {fileID: 1452508097}
+  - component: {fileID: 1452508098}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -69745,6 +69745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5be00232825465841b59aaef21b6c580, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveManager
+  Spectator: 0
   activeSlot: 0
   buildingManager: {fileID: 1452508093}
   npcManager: {fileID: 1308728410}
@@ -69757,6 +69758,19 @@ MonoBehaviour:
   RDB: {fileID: 11400000, guid: 03dbe03102ef952449c630141ef57faf, type: 2}
   BDB: {fileID: 11400000, guid: b6f8407eaccb95c4bb9f6f0228d4ebea, type: 2}
   TDB: {fileID: 11400000, guid: 77c71eb52ae1dc542964dc444598d575, type: 2}
+--- !u!114 &1452508098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452508092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: accc880f4ce259047a931f81d2850bf5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpectatorManager
+  disableInSpectator: []
 --- !u!1 &1463296037
 GameObject:
   m_ObjectHideFlags: 0

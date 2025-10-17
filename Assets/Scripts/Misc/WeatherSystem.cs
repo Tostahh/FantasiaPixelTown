@@ -42,6 +42,7 @@ public class WeatherSystem : MonoBehaviour
     {
         if (!dayNightCycle)
             dayNightCycle = FindObjectOfType<DayNightCycle>();
+        CurrentWeather = WeatherType.Clear;
     }
 
 

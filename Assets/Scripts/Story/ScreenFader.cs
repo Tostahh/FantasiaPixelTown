@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 public class ScreenFader : MonoBehaviour
 {
@@ -13,7 +14,20 @@ public class ScreenFader : MonoBehaviour
     private void Awake()
     {
         if (Instance == null) Instance = this;
+    }
 
+    private void OnEnable()
+    {
+        SaveManager.GameLoaded += OnGameLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SaveManager.GameLoaded -= OnGameLoaded;
+    }
+
+    private void OnGameLoaded()
+    {
         if (StoryEventManager.Instance.events[0].completed)
         {
             fadeOverlay.gameObject.SetActive(false);

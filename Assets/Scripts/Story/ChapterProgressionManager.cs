@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class ChapterProgressionManager : MonoBehaviour
@@ -12,6 +13,8 @@ public class ChapterProgressionManager : MonoBehaviour
 
     [Header("Chapter 2 Settings")]
     public string TownName;
+    [SerializeField] private GameObject TownUI;
+    [SerializeField] private TextMeshProUGUI TownNameUI;
     public string houseName = "House";
     public string guardpostName = "GuardPost";
     public string MarketName = "Market";
@@ -56,6 +59,19 @@ public class ChapterProgressionManager : MonoBehaviour
         SaveManager.GameLoaded -= OnGameLoaded;
     }
 
+    private void Update()
+    {
+        if(TownName != string.Empty)
+        {
+            TownUI.SetActive(true);
+            TownNameUI.text = TownName;
+        }
+        else
+        {
+            TownUI.SetActive(false);
+            TownNameUI.text = string.Empty;
+        }
+    }
     private void HandleBuildingUpgrade(Building building)
     {
         if (building.blueprint.buildingName == innName)

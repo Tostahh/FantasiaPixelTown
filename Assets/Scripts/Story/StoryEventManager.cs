@@ -27,6 +27,13 @@ public class StoryEventManager : MonoBehaviour
             if (!eventLookup.ContainsKey(e.eventID))
                 eventLookup.Add(e.eventID, e);
         }
+
+
+        foreach (var e in events)
+        {
+            if (e == null) continue;
+            e.completed = false;
+        }
     }
 
     /// <summary>

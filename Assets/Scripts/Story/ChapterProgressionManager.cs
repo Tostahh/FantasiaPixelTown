@@ -14,7 +14,7 @@ public class ChapterProgressionManager : MonoBehaviour
     public string TownName;
     public string houseName = "House";
     public string guardpostName = "GuardPost";
-    public string farmName = "Farm";
+    public string MarketName = "Market";
     public int HousesBuilt = 0;
 
     private void Awake()
@@ -40,6 +40,7 @@ public class ChapterProgressionManager : MonoBehaviour
         BuildingManager.OnBuildingPlaced += HandleBuildingPlaced;
         StoryEventManager.Instance.OnEventCompleted += HandleStoryEventCompleted;
         StoryEventManager.OnChapterAdvance += CompleteChapter1;
+        StoryEventManager.OnChapterAdvance += CompleteChapter2;
 
         SaveManager.GameLoaded += OnGameLoaded;
     }
@@ -50,6 +51,7 @@ public class ChapterProgressionManager : MonoBehaviour
         BuildingManager.OnBuildingPlaced -= HandleBuildingPlaced;
         StoryEventManager.Instance.OnEventCompleted -= HandleStoryEventCompleted;
         StoryEventManager.OnChapterAdvance -= CompleteChapter1;
+        StoryEventManager.OnChapterAdvance -= CompleteChapter2;
 
         SaveManager.GameLoaded -= OnGameLoaded;
     }
@@ -70,12 +72,12 @@ public class ChapterProgressionManager : MonoBehaviour
 
         if (building.blueprint.buildingName == guardpostName)
         {
-            //trigger farm event;
+            StoryEventManager.Instance.Trigger("LetsGoShopping");
         }
 
-        if (building.blueprint.buildingName == farmName)
+        if (building.blueprint.buildingName == MarketName)
         {
-            //trigger multiplayer event;
+            StoryEventManager.Instance.Trigger("Reconstruction");
         }
 
         if(HousesBuilt >= 5)
@@ -98,6 +100,12 @@ public class ChapterProgressionManager : MonoBehaviour
             case "ShrineUpgrade":
                 StoryEventManager.Instance.Trigger("TalkOfTheTown");
                 break;
+            case "Reconstruction":
+                StoryEventManager.Instance.Trigger("EndChapter2");
+                break;
+            case "EndChapter2":
+                StoryEventManager.Instance.Trigger("StartChapter3");
+                break;
             default:
                 break;
         }
@@ -118,6 +126,16 @@ public class ChapterProgressionManager : MonoBehaviour
             Debug.Log("[ChapterProgressionManager] Chapter 1 Complete! Unlocking next chapter...");
 
             ChapterFlash.SetTrigger("PlayC2");
+        }
+    }
+
+    private void CompleteChapter2(int ChapterNumb)
+    {
+        if(ChapterNumb == 3)
+        {
+            Debug.Log("[ChapterProgressionManager] Chapter 2 Complete! Unlocking next chapter...");
+
+            ChapterFlash.SetTrigger("PlayC3");
         }
     }
 }

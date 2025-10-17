@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00136c49886b01b48b668af1d85d1614, type: 3}
+  m_Name: Event_Chapter2_Reconstruction
+  m_EditorClassIdentifier: Assembly-CSharp::StoryEventSO
+  eventID: Reconstruction
+  completed: 0
+  actions:
+  - {fileID: 11400000, guid: 6c5b06bc4860ecd45b37aae1d380752c, type: 2}
+  - {fileID: 11400000, guid: 3c119c15399b7e04db50ab40915dffbb, type: 2}
+  - {fileID: 11400000, guid: f9bdd21a9df76df4d953ce11e8b9214e, type: 2}
+  - {fileID: 11400000, guid: dec2ad95177e5994ab9e75e28855609d, type: 2}
+  prerequisiteEventID: 

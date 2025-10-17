@@ -260,18 +260,17 @@ public class BuildingManager : MonoBehaviour
         if (buildingToMove == null || currentBlueprint == null) return;
 
         Vector3 worldPos = grid.GetCellCenterWorld(newOriginCell) + currentBlueprint.visualOffset;
-
         ClearOldTiles(buildingToMove, grid.WorldToCell(originalPosition - currentBlueprint.visualOffset));
-
         buildingToMove.transform.position = worldPos;
+        ApplyTiles(newOriginCell, currentBlueprint.width, currentBlueprint.height, currentBlueprint.pathPadding);
 
+        buildingToMove.GetComponent<IsometricSortingOrder>().UpdateSortingOrder();
         Destroy(previewObject);
         previewObject = null;
         currentBlueprint = null;
         buildingToMove = null;
         IsPlacingBuilding = false;
     }
-
     public void ClearOldTiles(Building building, Vector3Int originCell)
     {
         int w = building.blueprint.width;

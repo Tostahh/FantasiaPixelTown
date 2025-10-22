@@ -14,6 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
   dialogueID: Cracks
   lines:
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: "Hue\u2026 you have done well. The town thrives\u2026 but something stirs
+      beneath."
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
     speakerName: Hue
-    text: SPOOOKY DIALOGUE HERE
+    text: Beneath? What do you mean?
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: "The ground trembles with a voice not my own\u2026 whispers from below."
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: It watches, waiting. You have built strong walls, but even they may not
+      hold.
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: "I-I don\u2019t know if we\u2019re ready\u2026 what if it breaks through?"
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: "the mist hungers\u2026 it strangles\u2026 it feeds\u2026"

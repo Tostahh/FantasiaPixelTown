@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
   dialogueID: Recon
   lines:
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: "Hue\u2026 the town bends to your hand now. Move, remove, reshape\u2026
+      let your vision take form."
+  - ImageSprite: {fileID: 21300000, guid: 1f7b13f6c844faa4e9b578f3e5bddd31, type: 3}
+    speakerName: ???
+    text: "Every path, every roof, every stone can follow your design. But choose
+      wisely \u2014 the town remembers."
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
     speakerName: Hue
-    text: Still no Dialogue. Move on bro.
+    text: "Anything I want? I can\u2026 change it all?"

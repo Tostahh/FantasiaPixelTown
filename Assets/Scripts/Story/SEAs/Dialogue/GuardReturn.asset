@@ -16,4 +16,15 @@ MonoBehaviour:
   lines:
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
     speakerName: Hue
-    text: Hue here. breaking the 4th wall. the written got board.
+    text: "You\u2026 came from the mist? Are you one of the townsfolk?"
+  - ImageSprite: {fileID: 21300000, guid: c816ea7de255991449ac62cf383acde3, type: 3}
+    speakerName: Captain
+    text: "Aye. What\u2019s left of one. Captain of the guard, once. The others didn\u2019t
+      make it back."
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: "The town\u2019s been rebuilding. You\u2019re just in time."
+  - ImageSprite: {fileID: 21300000, guid: c816ea7de255991449ac62cf383acde3, type: 3}
+    speakerName: Captain
+    text: "Then I\u2019ve still got work to do. Take this Guard Post Blueprint \u2014
+      the walls must stand before the mist returns."

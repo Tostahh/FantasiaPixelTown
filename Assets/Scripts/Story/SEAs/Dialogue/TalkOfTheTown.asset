@@ -17,7 +17,30 @@ MonoBehaviour:
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
     speakerName: Hue
     text: What was that... Weird voice?
+  - ImageSprite: {fileID: 6891446658270778285, guid: cee6599f40a14854a8a35277cbc0e844, type: 3}
+    speakerName: Veylan
+    text: "Well I\u2019ll be\u2026 never thought I\u2019d see this place bustling
+      again. The fields are singing, thanks to you!"
+  - ImageSprite: {fileID: 7253254653333588038, guid: cee6599f40a14854a8a35277cbc0e844, type: 3}
+    speakerName: Elara
+    text: The rooms are filling faster than I can make the beds! I almost forgot
+      what laughter sounded like in these halls.
+  - ImageSprite: {fileID: 21300000, guid: 0365174485713ee4a9d35df90587e39e, type: 3}
+    speakerName: Bagren
+    text: "Heh. I\u2019ve even got orders for new tools. If this keeps up, I might
+      have to open the forge day and night."
+  - ImageSprite: {fileID: 6891446658270778285, guid: cee6599f40a14854a8a35277cbc0e844, type: 3}
+    speakerName: Tomas
+    text: "I heard travelers at the edge of the mist. Maybe they\u2019re waiting
+      for a sign it\u2019s safe again."
+  - ImageSprite: {fileID: 7253254653333588038, guid: cee6599f40a14854a8a35277cbc0e844, type: 3}
+    speakerName: Elara
+    text: "Then let\u2019s give them one. Light the lamps, open the doors\u2014let
+      the town breathe again!"
   - ImageSprite: {fileID: 21300000, guid: 1c80972a9801bcc40ac8b1bbab08a245, type: 3}
     speakerName: Veylan
-    text: That liar that speaks truth, be forward... here BUILD MORE FOUNDATIONS.
-      have a house... HEEHEH
+    text: Here! Take this House Blueprint. Build more, many more! The people will
+      return when the walls call their names
+  - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
+    speakerName: Hue
+    text: Whatever you say Veylan...

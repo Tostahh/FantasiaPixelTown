@@ -43,4 +43,4 @@ MonoBehaviour:
       return when the walls call their names
   - ImageSprite: {fileID: 21300000, guid: a6ac6f835b210334aa91ed6b950f354f, type: 3}
     speakerName: Hue
-    text: Whatever you say Veylan...
+    text: Whatever you say Veylan... I'll Start with five!
